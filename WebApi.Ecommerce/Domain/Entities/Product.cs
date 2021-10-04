@@ -1,4 +1,5 @@
-﻿using WebApi.Ecommerce.Domain.Abstracts;
+﻿using System.Collections.Generic;
+using WebApi.Ecommerce.Domain.Abstracts;
 
 namespace WebApi.Ecommerce.Domain.Entities
 {
@@ -52,7 +53,7 @@ namespace WebApi.Ecommerce.Domain.Entities
 
 
         // Relationship
-        public Sale Sales { get; set; }
+        public ICollection<SaleProduct> SaleProducts { get; set; }
 
 
         // Modifier

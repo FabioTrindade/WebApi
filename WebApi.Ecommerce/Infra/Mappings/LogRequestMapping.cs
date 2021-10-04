@@ -10,9 +10,9 @@ namespace WebApi.Ecommerce.Infra.Mappings
         {
             entityBuilder.ToTable("LogRequests");
             entityBuilder.HasKey(t => t.Id).HasName("Pk_LogRequests_Id"); ;
-            entityBuilder.Property(t => t.CreatedAt).IsRequired().HasColumnType("DATETIME");
-            entityBuilder.Property(t => t.UpdatedAt).HasColumnType("DATETIME");
-            entityBuilder.Property(t => t.Active).IsRequired().HasColumnType("BIT").HasDefaultValueSql("1");
+            entityBuilder.Property(t => t.CreatedAt).IsRequired().HasColumnType("TIMESTAMP");
+            entityBuilder.Property(t => t.UpdatedAt).HasColumnType("TIMESTAMP");
+            entityBuilder.Property(t => t.Active).IsRequired().HasDefaultValueSql("TRUE");
             entityBuilder.Property(t => t.Device).HasColumnType("VARCHAR(600)");
             entityBuilder.Property(t => t.Host).HasColumnType("VARCHAR(600)");
             entityBuilder.Property(t => t.Method).HasColumnType("VARCHAR(600)");

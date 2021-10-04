@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using WebApi.Ecommerce.Domain.Abstracts;
 
 namespace WebApi.Ecommerce.Domain.Entities
@@ -6,7 +6,10 @@ namespace WebApi.Ecommerce.Domain.Entities
     public class SaleProduct : Entity
     {
         // Relationship
-        public ICollection<Sale> Sales { get; set; }
-        public ICollection<Product> products { get; set; }
+        public Guid SalesId { get; set; }
+        public Sale Sales { get; set; }
+
+        public Guid ProductId { get; set; }
+        public Product Products { get; set; }
     }
 }

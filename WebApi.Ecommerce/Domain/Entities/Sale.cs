@@ -10,6 +10,6 @@ namespace WebApi.Ecommerce.Domain.Entities
 
         public SaleType SaleType { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public ICollection<SaleProduct> SaleProducts { get; set; }
     }
 }
