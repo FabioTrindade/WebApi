@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using WebApi.Ecommerce.Configurations;
 using WebApi.Ecommerce.Infra.Contexts;
 
 namespace WebApi.Ecommerce
@@ -21,17 +22,24 @@ namespace WebApi.Ecommerce
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddControllers();
+
+            // Document swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi.Ecommerce", Version = "v1" });
             });
 
+            // Connection with database
             services.AddDbContext<WebApiDataContext>(options =>
                 options
                 .UseNpgsql(Configuration.GetConnectionString("WebApiConnection"), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
                 .UseLowerCaseNamingConvention()
             );
+
+            // Dependecy Injection
+            services.DependencyResolver(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,12 +48,9 @@ namespace WebApi.Ecommerce
             // Initialize database
             InitializeDatabase(app);
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi.Ecommerce v1"));
-            }
+
+            app.UseDeveloperExceptionPage();
+            SetConfigureSwagger(app);
 
             app.UseHttpsRedirection();
 
@@ -56,6 +61,17 @@ namespace WebApi.Ecommerce
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+
+        private static void SetConfigureSwagger(IApplicationBuilder app)
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi.Ecommerce v1");
+                c.RoutePrefix = "swagger";
+                c.DefaultModelExpandDepth(-1);
             });
         }
 

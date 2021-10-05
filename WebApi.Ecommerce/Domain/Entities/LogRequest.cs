@@ -60,6 +60,52 @@ namespace WebApi.Ecommerce.Domain.Entities
 
 
         // Modifier
+
+        public void SetDevice(string device)
+        {
+            this.Device = device;
+        }
+
+        public void SetHost(string host)
+        {
+            this.Host = host;
+        }
+
+        public void SetMethod(string method)
+        {
+            this.Method = method;
+        }
+
+        public void SetPath(string path)
+        {
+            this.Path = path;
+        }
+
+        public void SetUrl(string url)
+        {
+            this.Url = url;
+        }
+
+        public void SetHeader(string header)
+        {
+            this.Header = header;
+        }
+
+        public void SetBody(string body)
+        {
+            this.Body = body;
+        }
+
+        public void SetQuery(string query)
+        {
+            this.Query = query;
+        }
+
+        public void SetIp(string ip)
+        {
+            this.Ip = ip;
+        }
+
         public void SetStatusCode(int statusCode)
         {
             this.StatusCode = statusCode;
