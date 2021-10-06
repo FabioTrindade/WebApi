@@ -10,8 +10,8 @@ using WebApi.Ecommerce.Infra.Contexts;
 namespace WebApi.Ecommerce.Migrations
 {
     [DbContext(typeof(WebApiDataContext))]
-    [Migration("20211003164411_CreateInitial")]
-    partial class CreateInitial
+    [Migration("20211006192513_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -109,6 +109,53 @@ namespace WebApi.Ecommerce.Migrations
                         .HasName("Pk_Customers_Id");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.LogErro", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("active")
+                        .HasDefaultValueSql("TRUE");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("createdat");
+
+                    b.Property<string>("Erro")
+                        .HasColumnType("VARCHAR(8000)")
+                        .HasColumnName("erro");
+
+                    b.Property<string>("ErroCompleto")
+                        .HasColumnType("VARCHAR(8000)")
+                        .HasColumnName("errocompleto");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("VARCHAR(200)")
+                        .HasColumnName("path");
+
+                    b.Property<string>("Query")
+                        .HasColumnType("VARCHAR(8000)")
+                        .HasColumnName("query");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("Pk_LogErros_Id");
+
+                    b.ToTable("LogErros");
                 });
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.LogRequest", b =>
@@ -280,41 +327,39 @@ namespace WebApi.Ecommerce.Migrations
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleProduct", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("SalesId")
                         .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("boolean")
-                        .HasColumnName("active");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("createdat");
+                        .HasColumnName("salesid");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
                         .HasColumnName("productid");
 
-                    b.Property<Guid>("SalesId")
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("active")
+                        .HasDefaultValueSql("TRUE");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("createdat");
+
+                    b.Property<Guid>("Id")
                         .HasColumnType("uuid")
-                        .HasColumnName("salesid");
+                        .HasColumnName("id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("TIMESTAMP")
                         .HasColumnName("updatedat");
 
-                    b.HasKey("Id")
+                    b.HasKey("SalesId", "ProductId")
                         .HasName("pk_saleproducts");
 
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_saleproducts_productid");
 
-                    b.HasIndex("SalesId")
-                        .HasDatabaseName("ix_saleproducts_salesid");
-
-                    b.ToTable("saleproducts");
+                    b.ToTable("SaleProducts");
                 });
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleType", b =>
@@ -374,14 +419,14 @@ namespace WebApi.Ecommerce.Migrations
                         .WithMany("SaleProducts")
                         .HasForeignKey("ProductId")
                         .HasConstraintName("fk_saleproducts_products_productid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("WebApi.Ecommerce.Domain.Entities.Sale", "Sales")
                         .WithMany("SaleProducts")
                         .HasForeignKey("SalesId")
                         .HasConstraintName("fk_saleproducts_sales_salesid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Products");

@@ -76,7 +76,6 @@ namespace WebApi.Ecommerce.Infra.Repositories
         {
             _context.Dispose();
         }
-
         
     }
 }

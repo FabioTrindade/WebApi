@@ -5,9 +5,9 @@ using WebApi.Ecommerce.Domain.Services;
 
 namespace WebApi.Ecommerce.Domain.Commands.Other
 {
-    public class ZipCodeCommand : Notifiable<Notification>, ICommand
+    public class ShippingWithZipCodeCommand : Notifiable<Notification>, ICommand
     {
-        public ZipCodeCommand(string zipCode)
+        public ShippingWithZipCodeCommand(string zipCode)
         {
             ZipCode = zipCode;
         }
@@ -18,7 +18,7 @@ namespace WebApi.Ecommerce.Domain.Commands.Other
         public void Validate()
         {
             var contract = new Contract()
-                .IsCep(ZipCode, "ZipCode", "O cep informado não parece ser válido");          
+                .IsCep(ZipCode, "ZipCode", "O cep informado não parece ser válido");
         }
     }
 }

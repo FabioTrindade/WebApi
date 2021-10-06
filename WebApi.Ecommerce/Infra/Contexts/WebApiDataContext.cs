@@ -18,12 +18,13 @@ namespace WebApi.Ecommerce.Infra.Contexts
             _configuration = configuration;
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<SaleType> SaleTypes { get; set; }
-        public DbSet<Sale> Sales { get; set; }
-        public DbSet<SaleProduct> SaleProducts { get; set; }
-        public DbSet<LogRequest> LogRequests { get; set; }
+        //public DbSet<Customer> Customers { get; set; }
+        //public DbSet<Product> Products { get; set; }
+        //public DbSet<SaleType> SaleTypes { get; set; }
+        //public DbSet<Sale> Sales { get; set; }
+        //public DbSet<SaleProduct> SaleProducts { get; set; }
+        //public DbSet<LogRequest> LogRequests { get; set; }
+        //public DbSet<LogErro> LogErros { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -44,7 +45,9 @@ namespace WebApi.Ecommerce.Infra.Contexts
             new ProductMapping(modelBuilder.Entity<Product>());
             new SaleTypeMapping(modelBuilder.Entity<SaleType>());
             new SaleMapping(modelBuilder.Entity<Sale>());
+            new SaleProductMapping(modelBuilder.Entity<SaleProduct>());
             new LogRequestMapping(modelBuilder.Entity<LogRequest>());
+            new LogErroMapping(modelBuilder.Entity<LogErro>());
         }
 
         /// <summary>

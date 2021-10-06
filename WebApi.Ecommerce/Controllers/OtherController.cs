@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Ecommerce.Domain.Commands;
 using WebApi.Ecommerce.Domain.Commands.Other;
 using WebApi.Ecommerce.Domain.DTOs;
 using WebApi.Ecommerce.Domain.Providers;
@@ -23,12 +21,22 @@ namespace WebApi.Ecommerce.Controllers
             _zipCodeProvider = zipCodeProvider;
         }
 
-        [HttpGet("/v1/[controller]/{zipcode}")]
+        [HttpGet("/v1/[controller]/address/{zipcode}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDTO))]
-        public async Task<IActionResult> GetAddressWithZipCode(ZipCodeCommand command)
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GenericCommandResult))]
+        public async Task<IActionResult> GetAddressWithZipCode([FromRoute] string zipcode)
         {
-            var result = _zipCodeProvider.Handle(command);
-            return Ok();
+            var result = await _zipCodeProvider.Handle(new ZipCodeCommand(zipcode));
+            return Ok(result);
+        }
+        
+        [HttpGet("/v1/[controller]/shipping/{zipcode}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShippingDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GenericCommandResult))]
+        public async Task<IActionResult> GetShippingWithZipCode([FromRoute] string zipcode)
+        {
+            var result = await _zipCodeProvider.Handle(new ShippingWithZipCodeCommand(zipcode));
+            return Ok(result);
         }
     }
 }

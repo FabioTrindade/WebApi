@@ -28,10 +28,7 @@ namespace WebApi.Ecommerce.Middlewares
 
             try
             {
-                if (!logRequest.Path.ToLower().Contains("hangfire"))
-                {
-                    await _logRequestRepository.CreateAsync(logRequest);
-                }
+                await _logRequestRepository.CreateAsync(logRequest);
             }
             catch (System.Exception ex)
             {
@@ -52,10 +49,7 @@ namespace WebApi.Ecommerce.Middlewares
 
                 try
                 {
-                    if (!logRequest.Path.ToLower().Contains("hangfire"))
-                    {
-                        await _logRequestRepository.UpdateAsync(logRequest);
-                    }
+                    await _logRequestRepository.UpdateAsync(logRequest);
                 }
                 catch (System.Exception ex)
                 {

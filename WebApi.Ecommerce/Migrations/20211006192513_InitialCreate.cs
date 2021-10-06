@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebApi.Ecommerce.Migrations
 {
-    public partial class CreateInitial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,6 +32,25 @@ namespace WebApi.Ecommerce.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("Pk_Customers_Id", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LogErros",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    method = table.Column<string>(type: "VARCHAR(100)", nullable: true),
+                    path = table.Column<string>(type: "VARCHAR(200)", nullable: true),
+                    erro = table.Column<string>(type: "VARCHAR(8000)", nullable: true),
+                    errocompleto = table.Column<string>(type: "VARCHAR(8000)", nullable: true),
+                    query = table.Column<string>(type: "VARCHAR(8000)", nullable: true),
+                    createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
+                    updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
+                    active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("Pk_LogErros_Id", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,42 +142,37 @@ namespace WebApi.Ecommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "saleproducts",
+                name: "SaleProducts",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     salesid = table.Column<Guid>(type: "uuid", nullable: false),
                     productid = table.Column<Guid>(type: "uuid", nullable: false),
-                    createdat = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updatedat = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    active = table.Column<bool>(type: "boolean", nullable: false)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
+                    updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
+                    active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_saleproducts", x => x.id);
+                    table.PrimaryKey("pk_saleproducts", x => new { x.salesid, x.productid });
                     table.ForeignKey(
                         name: "fk_saleproducts_products_productid",
                         column: x => x.productid,
                         principalTable: "Products",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_saleproducts_sales_salesid",
                         column: x => x.salesid,
                         principalTable: "Sales",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "ix_saleproducts_productid",
-                table: "saleproducts",
+                table: "SaleProducts",
                 column: "productid");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_saleproducts_salesid",
-                table: "saleproducts",
-                column: "salesid");
 
             migrationBuilder.CreateIndex(
                 name: "ix_sales_customerid",
@@ -174,10 +188,13 @@ namespace WebApi.Ecommerce.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "LogErros");
+
+            migrationBuilder.DropTable(
                 name: "LogRequests");
 
             migrationBuilder.DropTable(
-                name: "saleproducts");
+                name: "SaleProducts");
 
             migrationBuilder.DropTable(
                 name: "Products");

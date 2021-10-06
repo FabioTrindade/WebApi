@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using WebApi.Ecommerce.Configurations;
 using WebApi.Ecommerce.Infra.Contexts;
+using WebApi.Ecommerce.Middlewares;
 
 namespace WebApi.Ecommerce
 {
@@ -24,6 +24,14 @@ namespace WebApi.Ecommerce
         {
             services.AddCors();
             services.AddControllers();
+
+            //// Settings
+            //Settings.ViaCep = Configuration.GetSection("HelpUrl").GetSection("ViaCep").Value;
+            //Settings.City = Configuration.GetSection("Shipping").GetSection("City").Value;
+            //Settings.State = Configuration.GetSection("Shipping").GetSection("State").Value;
+            //Settings.StepOne = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepOne").Value);
+            //Settings.StepTwo = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepTwo").Value);
+            //Settings.StepThree = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepThree").Value);
 
             // Document swagger
             services.AddSwaggerGen(c =>
@@ -48,8 +56,8 @@ namespace WebApi.Ecommerce
             // Initialize database
             InitializeDatabase(app);
 
-
             app.UseDeveloperExceptionPage();
+
             SetConfigureSwagger(app);
 
             app.UseHttpsRedirection();
@@ -57,6 +65,12 @@ namespace WebApi.Ecommerce
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // Middleware Logging Request and Response
+            app.UseMiddleware<RequestAndResponseLoggingMiddleware>();
+
+            // Middleware Erro
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

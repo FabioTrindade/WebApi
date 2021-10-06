@@ -5,33 +5,33 @@ namespace WebApi.Ecommerce.Domain.Responses
     public class ZipCodeResponse
     {
         [JsonProperty("cep")]
-        public string Cep { get; set; }
+        public string ZipCode { get; set; }
 
         [JsonProperty("logradouro")]
-        public string Logradouro { get; set; }
+        public string Address { get; set; }
 
         [JsonProperty("complemento")]
-        public string Complemento { get; set; }
+        public string Complement { get; set; }
 
         [JsonProperty("bairro")]
-        public string Bairro { get; set; }
+        public string Neighborhood { get; set; }
 
         [JsonProperty("localidade")]
-        public string Localidade { get; set; }
+        public string City { get; set; }
 
         [JsonProperty("uf")]
-        public string Uf { get; set; }
+        public string State { get; set; }
 
         [JsonProperty("ibge")]
-        public long Ibge { get; set; }
+        public string Ibge { get; set; }
 
         [JsonProperty("gia")]
-        public long Gia { get; set; }
+        public string Gia { get; set; }
 
         [JsonProperty("ddd")]
-        public int Ddd { get; set; }
+        public string Ddd { get; set; }
 
         [JsonProperty("siafi")]
-        public long Siafi { get; set; }
+        public string Siafi { get; set; }
     }
 }

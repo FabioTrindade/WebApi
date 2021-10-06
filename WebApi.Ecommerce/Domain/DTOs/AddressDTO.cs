@@ -8,7 +8,7 @@
             , string neighborhood
             , string city
             , string state
-            , int ddd)
+            , string ddd)
         {
             ZipCode = zipCode;
             Address = address;
@@ -31,6 +31,6 @@
 
         public string State { get; private set; }
 
-        public int Ddd { get; private set; }
+        public string Ddd { get; private set; }
     }
 }
