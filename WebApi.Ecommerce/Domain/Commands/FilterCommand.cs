@@ -1,12 +1,12 @@
-﻿namespace WebApi.Ecommerce.Domain.Abstracts
+﻿namespace WebApi.Ecommerce.Domain.Commands
 {
-    public abstract class BootstrapTable
+    public class FilterCommand
     {
         // Constructor
-        protected BootstrapTable()
+        protected FilterCommand(int limit, int offset)
         {
-            Limit = 10;
-            Offset = 0;
+            Limit = limit;
+            Offset = offset;
         }
 
         // Properties
@@ -17,7 +17,5 @@
         public string Sort { get; set; }
 
         public string Order { get; set; }
-
-        public string Search { get; set; }
     }
 }

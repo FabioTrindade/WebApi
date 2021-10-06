@@ -2,7 +2,7 @@
 using Flunt.Validations;
 using WebApi.Ecommerce.Domain.Services;
 
-namespace WebApi.Ecommerce.Domain.Commands
+namespace WebApi.Ecommerce.Domain.Commands.Product
 {
     public class ProductCreateCommand : Notifiable<Notification>,  ICommand
     {
@@ -22,13 +22,13 @@ namespace WebApi.Ecommerce.Domain.Commands
             AddNotifications(new Contract<Notification>().Requires()
                     .IsNotNullOrEmpty(Description, "Descrição", "Faz necessário preencher a descrição do produto.")
                     .IsNotNullOrEmpty(SKU, "SKU", "Faz necessário preencher o identificador SKU do produto.")
-                    .IsLowerThan(Amount, 0, "Preço Venda", "Faz necessário informar o valor de venda do produto.")
+                    .IsGreaterThan(Amount, 0, "Preço Venda", "Faz necessário informar o valor de venda do produto.")
                 );
 
             if(Sale is not null)
             {
                 AddNotifications(new Contract<Notification>().Requires()
-                    .IsLowerThan(Sale.GetValueOrDefault(), 0, "Preço Promoção", "Faz necessário informar o valor de promoção do produto.")
+                    .IsGreaterThan(Sale.GetValueOrDefault(), 0, "Preço Promoção", "Faz necessário informar o valor de promoção do produto.")
                 );
             }
         }

@@ -71,7 +71,7 @@ namespace WebApi.Ecommerce
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi.Ecommerce v1");
                 c.RoutePrefix = "swagger";
-                c.DefaultModelExpandDepth(-1);
+                c.DefaultModelsExpandDepth(-1);
             });
         }
 

@@ -1,22 +1,23 @@
-﻿using System.Collections.Generic;
-using WebApi.Ecommerce.Domain.Abstracts;
+﻿using System;
 
-namespace WebApi.Ecommerce.Domain.Entities
+namespace WebApi.Ecommerce.Domain.DTOs
 {
-    public class Product : Entity
+    public class ProductDTO : EntityDTO
     {
-        // Constructor
-        public Product()
-        {
-
-        }
-
-        public Product(string description
+        public ProductDTO( Guid id
+            , DateTime createdAt
+            , DateTime? updatedAt
+            , bool active
+            , string description
             , string sku
             , decimal amount
             , int quantity
             , decimal? sale)
         {
+            Id = id;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            Active = active;
             Description = description;
             SKU = sku;
             Amount = amount;
@@ -30,12 +31,12 @@ namespace WebApi.Ecommerce.Domain.Entities
         /// Atributo utilizado para definir a descrição do produto
         /// </summary>
         public string Description { get; private set; }
-        
+
         /// <summary>
         /// Atributo utilizado para definir caracteristicas unicas afins de manter organização do estoque
         /// </summary>
         public string SKU { get; private set; }
-        
+
         /// <summary>
         /// Atributo utilizado para definir o preco de venda
         /// </summary>
@@ -50,36 +51,5 @@ namespace WebApi.Ecommerce.Domain.Entities
         /// Atributo utilizado para definir preço do produto em promoção
         /// </summary>
         public decimal? Sale { get; private set; }
-
-
-        // Relationship
-        public ICollection<SaleProduct> SaleProducts { get; set; }
-
-
-        // Modifier
-        public void SetDescription(string description)
-        {
-            this.Description = description;
-        }
-
-        public void SetSKU(string sku)
-        {
-            this.SKU = sku;
-        }
-
-        public void SetAmount(decimal amount)
-        {
-            this.Amount = amount;
-        }
-
-        public void SetQuantity(int quantity)
-        {
-            this.Quantity = quantity;
-        }
-
-        public void SetSale(decimal? Sale)
-        {
-            this.Sale = Sale;
-        }
     }
 }
