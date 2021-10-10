@@ -46,7 +46,9 @@ namespace WebApi.Ecommerce.Configurations
 
             #region Service
 
+            services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ISaleTypeService, SaleTypeService>();
 
             #endregion
 

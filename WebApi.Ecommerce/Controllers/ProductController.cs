@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Commands.Product;
-using WebApi.Ecommerce.Domain.DTOs;
+using WebApi.Ecommerce.Domain.DTOs.Product;
 using WebApi.Ecommerce.Domain.Services;
 
 namespace WebApi.Ecommerce.Controllers
@@ -41,6 +41,7 @@ namespace WebApi.Ecommerce.Controllers
 
         [HttpGet("/v1/[controller]")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetPagination([FromQuery] ProductGetPaginationCommand command)
         {
             var result = await _productService.Handle(command);

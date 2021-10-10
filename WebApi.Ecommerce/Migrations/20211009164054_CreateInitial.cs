@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebApi.Ecommerce.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class CreateInitial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -145,7 +145,7 @@ namespace WebApi.Ecommerce.Migrations
                 name: "SaleProducts",
                 columns: table => new
                 {
-                    salesid = table.Column<Guid>(type: "uuid", nullable: false),
+                    saleid = table.Column<Guid>(type: "uuid", nullable: false),
                     productid = table.Column<Guid>(type: "uuid", nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
@@ -154,7 +154,7 @@ namespace WebApi.Ecommerce.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_saleproducts", x => new { x.salesid, x.productid });
+                    table.PrimaryKey("pk_saleproducts", x => new { x.saleid, x.productid });
                     table.ForeignKey(
                         name: "fk_saleproducts_products_productid",
                         column: x => x.productid,
@@ -162,8 +162,8 @@ namespace WebApi.Ecommerce.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_saleproducts_sales_salesid",
-                        column: x => x.salesid,
+                        name: "fk_saleproducts_sales_saleid",
+                        column: x => x.saleid,
                         principalTable: "Sales",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);

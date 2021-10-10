@@ -1,10 +1,11 @@
 ﻿using System;
 
-namespace WebApi.Ecommerce.Domain.DTOs
+namespace WebApi.Ecommerce.Domain.DTOs.Product
 {
     public class ProductDTO : EntityDTO
     {
-        public ProductDTO( Guid id
+        // Constructor
+        public ProductDTO(Guid id
             , DateTime createdAt
             , DateTime? updatedAt
             , bool active

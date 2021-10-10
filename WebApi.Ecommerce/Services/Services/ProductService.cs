@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using WebApi.Ecommerce.Configurations;
 using WebApi.Ecommerce.Domain.Commands;
 using WebApi.Ecommerce.Domain.Commands.Product;
-using WebApi.Ecommerce.Domain.DTOs;
+using WebApi.Ecommerce.Domain.DTOs.Product;
 using WebApi.Ecommerce.Domain.Entities;
 using WebApi.Ecommerce.Domain.Repositories;
 using WebApi.Ecommerce.Domain.Services;
@@ -27,19 +28,36 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (!command.IsValid)
             {
-                return new GenericCommandResult(false, "", command.Notifications);
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
             if (ExistIdentifierSku(command.SKU).GetAwaiter().GetResult())
             {
                 command.AddNotification("SKU", "O identificador SKU encontra-se em uso.");
-                return new GenericCommandResult(false, "", command.Notifications);
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
-            var newProduct = new Product(command.Description.Trim(), command.SKU.Trim(), command.Amount, command.Quantity, command.Sale);
+            var newProduct = new Product(
+                                            description: command.Description.Trim(), 
+                                            sku: command.SKU.Trim(), 
+                                            amount: command.Amount, 
+                                            quantity: command.Quantity, 
+                                            sale: command.Sale
+                                        );
+
             await _productRepository.CreateAsync(newProduct);
 
-            var product = new ProductDTO(newProduct.Id, newProduct.CreatedAt, newProduct.UpdatedAt, newProduct.Active, newProduct.Description, newProduct.SKU, newProduct.Amount, newProduct.Quantity, newProduct.Sale);
+            var product = new ProductDTO(
+                                            id: newProduct.Id, 
+                                            createdAt: newProduct.CreatedAt, 
+                                            updatedAt: newProduct.UpdatedAt, 
+                                            active: newProduct.Active, 
+                                            description: newProduct.Description, 
+                                            sku: newProduct.SKU, 
+                                            amount: newProduct.Amount, 
+                                            quantity: newProduct.Quantity, 
+                                            sale: newProduct.Sale
+                                        );
 
             return new GenericCommandResult(true, "", product);
         }
@@ -47,14 +65,47 @@ namespace WebApi.Ecommerce.Services.Services
         public async Task<GenericCommandResult> Handle(ProductGetByIdCommand command)
         {
             var result = await _productRepository.GetByIdAsync(command.Id);
-            var product = new ProductDTO(result.Id, result.CreatedAt, result.UpdatedAt, result.Active, result.Description, result.SKU, result.Amount, result.Quantity, result.Sale);
-
+            var product = new ProductDTO(   
+                                            id: result.Id,
+                                            createdAt: result.CreatedAt,
+                                            updatedAt: result.UpdatedAt,
+                                            active: result.Active,
+                                            description: result.Description,
+                                            sku: result.SKU,
+                                            amount: result.Amount,
+                                            quantity: result.Quantity,
+                                            sale: result.Sale
+                                        );
 
             return new GenericCommandResult(true, "", product);
         }
 
         public async Task<GenericCommandResult> Handle(ProductGetPaginationCommand command)
         {
+            command.Validate();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            var filter = new BootstrapTableCommand()
+            {
+                Limit = command.PerPage,
+                Offset = command.CurrentPage,
+                Sort = command.OrderBy,
+                Order = command.SortBy
+            };
+
+            var result = await _productRepository.QueryPaginationAsync(filter, command);
+
+            var productPaginationDTO = new ProductPaginationDTO();
+            productPaginationDTO.Product.AddRange(result.Rows);
+            productPaginationDTO.PerPage = command.PerPage;
+            productPaginationDTO.CurrentPage = command.CurrentPage;
+            productPaginationDTO.LastPage = ((int)productPaginationDTO.Total / command.PerPage);
+            productPaginationDTO.Total = (int)productPaginationDTO.Total;
+
             return new GenericCommandResult(true, "");
         }
 
@@ -64,21 +115,16 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (!command.IsValid)
             {
-                return new GenericCommandResult(false, "", command.Notifications);
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
+
+            var product = await _productRepository.GetByIdAsync(command.Id);
+            product.ValidateIfIsNull($"Não foi possível identificar o produto {command.Id}.");
 
             if (ExistIdentifierSku(command.SKU).GetAwaiter().GetResult())
             {
                 command.AddNotification("SKU", "O identificador SKU encontra-se em uso.");
-                return new GenericCommandResult(false, "", command.Notifications);
-            }
-
-            var product = await _productRepository.GetByIdAsync(command.Id);
-
-            if(product is null)
-            {
-                command.AddNotification("Produto", "Não foi possível identificar o produto.");
-                return new GenericCommandResult(false, "", command.Notifications);
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
             var result = product.CompareEx(command);
@@ -96,7 +142,7 @@ namespace WebApi.Ecommerce.Services.Services
             else
             {
                 command.AddNotification("Produto", "Não conseguimos identificar alteração no produto.");
-                return new GenericCommandResult(false, "", command.Notifications);
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
             return new GenericCommandResult(true, "");
@@ -105,7 +151,7 @@ namespace WebApi.Ecommerce.Services.Services
         public async Task<GenericCommandResult> Handle(ProductDeleteByIdCommand command)
         {
             var result = await _productRepository.GetByIdAsync(command.Id);
-
+            result.ValidateIfIsNull($"Produto {command.Id} não encontrado.");
 
             return new GenericCommandResult(true, "");
         }

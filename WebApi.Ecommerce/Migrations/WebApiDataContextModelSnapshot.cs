@@ -325,9 +325,9 @@ namespace WebApi.Ecommerce.Migrations
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleProduct", b =>
                 {
-                    b.Property<Guid>("SalesId")
+                    b.Property<Guid>("SaleId")
                         .HasColumnType("uuid")
-                        .HasColumnName("salesid");
+                        .HasColumnName("saleid");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -351,7 +351,7 @@ namespace WebApi.Ecommerce.Migrations
                         .HasColumnType("TIMESTAMP")
                         .HasColumnName("updatedat");
 
-                    b.HasKey("SalesId", "ProductId")
+                    b.HasKey("SaleId", "ProductId")
                         .HasName("pk_saleproducts");
 
                     b.HasIndex("ProductId")
@@ -422,8 +422,8 @@ namespace WebApi.Ecommerce.Migrations
 
                     b.HasOne("WebApi.Ecommerce.Domain.Entities.Sale", "Sales")
                         .WithMany("SaleProducts")
-                        .HasForeignKey("SalesId")
-                        .HasConstraintName("fk_saleproducts_sales_salesid")
+                        .HasForeignKey("SaleId")
+                        .HasConstraintName("fk_saleproducts_sales_saleid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

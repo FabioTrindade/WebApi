@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.90" />
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
     <PackageReference Include="Flunt" Version="2.0.5" />
     <PackageReference Include="Flunt.Br" Version="2.0.0" />

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using WebApi.Ecommerce.Configurations;
+using WebApi.Ecommerce.Filters;
 using WebApi.Ecommerce.Infra.Contexts;
 using WebApi.Ecommerce.Middlewares;
 
@@ -25,17 +26,11 @@ namespace WebApi.Ecommerce
             services.AddCors();
             services.AddControllers();
 
-            //// Settings
-            //Settings.ViaCep = Configuration.GetSection("HelpUrl").GetSection("ViaCep").Value;
-            //Settings.City = Configuration.GetSection("Shipping").GetSection("City").Value;
-            //Settings.State = Configuration.GetSection("Shipping").GetSection("State").Value;
-            //Settings.StepOne = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepOne").Value);
-            //Settings.StepTwo = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepTwo").Value);
-            //Settings.StepThree = Convert.ToDecimal(Configuration.GetSection("Shipping").GetSection("StepThree").Value);
-
             // Document swagger
             services.AddSwaggerGen(c =>
             {
+                c.OperationFilter<SwaggerIgnoreFilter>();
+
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi.Ecommerce", Version = "v1" });
             });
 

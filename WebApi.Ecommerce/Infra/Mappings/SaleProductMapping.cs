@@ -14,11 +14,11 @@ namespace WebApi.Ecommerce.Infra.Mappings
             entityBuilder.Property(t => t.UpdatedAt).HasColumnType("TIMESTAMP");
             entityBuilder.Property(t => t.Active).IsRequired().HasDefaultValueSql("TRUE");
 
-            entityBuilder.HasKey(sp => new { sp.SalesId, sp.ProductId });
+            entityBuilder.HasKey(sp => new { sp.SaleId, sp.ProductId });
 
             entityBuilder.HasOne(s => s.Sales)
                 .WithMany(sp => sp.SaleProducts)
-                .HasForeignKey(f => f.SalesId)
+                .HasForeignKey(f => f.SaleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entityBuilder.HasOne(p => p.Products)

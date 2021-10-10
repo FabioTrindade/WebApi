@@ -7,6 +7,7 @@
         {
             Limit = 10;
             Offset = 0;
+            Active = true;
         }
 
         // Properties
@@ -19,5 +20,7 @@
         public string Order { get; set; }
 
         public string Search { get; set; }
+
+        public bool Active { get; set; }
     }
 }

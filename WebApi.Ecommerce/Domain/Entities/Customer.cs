@@ -19,7 +19,6 @@ namespace WebApi.Ecommerce.Domain.Entities
             , string complement
             , string city
             , string state
-            , string country
             , string cellPhone
             , string phone
             , string email)
@@ -33,7 +32,7 @@ namespace WebApi.Ecommerce.Domain.Entities
             Complement = complement;
             City = city;
             State = state;
-            Country = country;
+            Country = "BR";
             CellPhone = cellPhone;
             Phone = phone;
             Email = email;

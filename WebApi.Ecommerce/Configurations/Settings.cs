@@ -18,17 +18,17 @@
         public static string State { get; set; }
 
         /// <summary>
-        /// Atributo utilizado para definir frete primeira modalidade
+        /// Atributo utilizado para definir frete primeira modalidade - Mesma Cidade
         /// </summary>
         public static decimal StepOne { get; set; }
 
         /// <summary>
-        /// Atributo utilizado para definir frete segunda modalidade
+        /// Atributo utilizado para definir frete segunda modalidade - Outras Cidade
         /// </summary>
         public static decimal StepTwo { get; set; }
 
         /// <summary>
-        /// Atributo utilizado para definir frete terceira modalidade
+        /// Atributo utilizado para definir frete terceira modalidade - Outro Estado
         /// </summary>
         public static decimal StepThree { get; set; }
     }

@@ -57,7 +57,7 @@ namespace WebApi.Ecommerce.Services.Providers
         private async Task<ZipCodeResponse> AddressWithZipCode(string zipCode)
         {
             var request = await _requestProvider.ExecuteAsync(
-                    url: string.Format(Settings.ViaCep, zipCode),
+                    url: string.Format(Settings.ViaCep, zipCode.OnlyNumbers()),
                     method: HttpMethodEnum.Get
                 );
 
@@ -66,15 +66,31 @@ namespace WebApi.Ecommerce.Services.Providers
             return address;
         }
 
-        private async Task<ShippingDTO> ShippingWithZipCode(string city, string state)
+        private static Task<ShippingDTO> ShippingWithZipCode(string city, string state)
         {
-            var shipping = new ShippingDTO();
+            decimal amount;
+            string observation;
 
-            if(Settings.State == state)
+            if (Settings.State == state)
             {
+                if (Settings.City == city)
+                {
+                    amount = Settings.StepOne;
+                    observation = "Entrega realizada dentro da cidade sede";
+                }
+                else
+                {
+                    amount = Settings.StepTwo;
+                    observation = "Entrega realizada em outra cidade dentro do estado";
+                }
+            }
+            else
+            {
+                amount = Settings.StepThree;
+                observation = "Entrega realizada fora do estado";
             }
 
-            return shipping;
+            return Task.FromResult(new ShippingDTO(city, state, amount, observation)); ;
         }
     }
 }

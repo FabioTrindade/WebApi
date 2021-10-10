@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using WebApi.Ecommerce.Domain.DTOs;
 using WebApi.Ecommerce.Domain.Entities;
 using WebApi.Ecommerce.Infra.Mappings;
 
@@ -17,14 +18,6 @@ namespace WebApi.Ecommerce.Infra.Contexts
         public WebApiDataContext(DbContextOptions options, IConfiguration configuration) : base(options) {
             _configuration = configuration;
         }
-
-        //public DbSet<Customer> Customers { get; set; }
-        //public DbSet<Product> Products { get; set; }
-        //public DbSet<SaleType> SaleTypes { get; set; }
-        //public DbSet<Sale> Sales { get; set; }
-        //public DbSet<SaleProduct> SaleProducts { get; set; }
-        //public DbSet<LogRequest> LogRequests { get; set; }
-        //public DbSet<LogErro> LogErros { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

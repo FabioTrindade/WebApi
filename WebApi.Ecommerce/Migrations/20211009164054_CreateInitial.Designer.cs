@@ -10,8 +10,8 @@ using WebApi.Ecommerce.Infra.Contexts;
 namespace WebApi.Ecommerce.Migrations
 {
     [DbContext(typeof(WebApiDataContext))]
-    [Migration("20211006192513_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20211009164054_CreateInitial")]
+    partial class CreateInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -327,9 +327,9 @@ namespace WebApi.Ecommerce.Migrations
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleProduct", b =>
                 {
-                    b.Property<Guid>("SalesId")
+                    b.Property<Guid>("SaleId")
                         .HasColumnType("uuid")
-                        .HasColumnName("salesid");
+                        .HasColumnName("saleid");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -353,7 +353,7 @@ namespace WebApi.Ecommerce.Migrations
                         .HasColumnType("TIMESTAMP")
                         .HasColumnName("updatedat");
 
-                    b.HasKey("SalesId", "ProductId")
+                    b.HasKey("SaleId", "ProductId")
                         .HasName("pk_saleproducts");
 
                     b.HasIndex("ProductId")
@@ -424,8 +424,8 @@ namespace WebApi.Ecommerce.Migrations
 
                     b.HasOne("WebApi.Ecommerce.Domain.Entities.Sale", "Sales")
                         .WithMany("SaleProducts")
-                        .HasForeignKey("SalesId")
-                        .HasConstraintName("fk_saleproducts_sales_salesid")
+                        .HasForeignKey("SaleId")
+                        .HasConstraintName("fk_saleproducts_sales_saleid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

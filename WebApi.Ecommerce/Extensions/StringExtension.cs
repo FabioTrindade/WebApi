@@ -1,33 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.RegularExpressions;
 
-namespace WebApi.Ecommerce.Commons
+namespace WebApi.Ecommerce.Extensions
 {
-    public static class Utils
+    public static class StringExtension
     {
-        /// <summary>
-        /// Retorna um objecto serializado, caso a deserialização de erro retorna objeto instanciado
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        public static T DeserializeObject<T>(string content)
+        public static string OnlyNumbers(this String input)
         {
-            var retorno = Activator.CreateInstance<T>();
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(content);
-            }
-            catch (Exception ex)
-            {
-                var erro = ex.Message;
-            }
-            return retorno;
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            var onlyNumbers = new Regex(@"[^\d]");
+            return onlyNumbers.Replace(input, "");
         }
 
-        public static bool IsValid(string cpfCnpj)
+        public static bool IsValidDocument(this String input)
         {
-            return (IsCpf(cpfCnpj) || IsCnpj(cpfCnpj));
+            return (IsCpf(input) || IsCnpj(input));
         }
 
         private static bool IsCpf(string cpf)
