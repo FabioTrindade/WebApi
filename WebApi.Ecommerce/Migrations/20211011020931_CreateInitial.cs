@@ -80,6 +80,38 @@ namespace WebApi.Ecommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PaymentStatus",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "VARCHAR(200)", nullable: false),
+                    paymentstatusid = table.Column<int>(type: "INT", nullable: false),
+                    createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
+                    updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
+                    active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("Pk_PaymentStatus_Id", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentTypes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "VARCHAR(100)", nullable: false),
+                    iscreditcard = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "FALSE"),
+                    createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
+                    updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
+                    active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("Pk_PaymentTypes_Id", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -99,27 +131,19 @@ namespace WebApi.Ecommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SaleTypes",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    description = table.Column<string>(type: "VARCHAR(100)", nullable: false),
-                    createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
-                    updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
-                    active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("Pk_SaleTypes_Id", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Sales",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    creditcard = table.Column<string>(type: "VARCHAR(20)", nullable: true),
+                    verificationcode = table.Column<string>(type: "VARCHAR(5)", nullable: true),
+                    validitymonth = table.Column<string>(type: "VARCHAR(2)", nullable: true),
+                    validityyear = table.Column<string>(type: "VARCHAR(4)", nullable: true),
+                    creditcardname = table.Column<string>(type: "VARCHAR(200)", nullable: true),
+                    transaction = table.Column<string>(type: "VARCHAR(50)", nullable: true),
                     customerid = table.Column<Guid>(type: "uuid", nullable: true),
-                    saletypeid = table.Column<Guid>(type: "uuid", nullable: true),
+                    paymenttypeid = table.Column<Guid>(type: "uuid", nullable: true),
+                    paymentstatusid = table.Column<Guid>(type: "uuid", nullable: true),
                     createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
                     updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
                     active = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "TRUE")
@@ -134,9 +158,15 @@ namespace WebApi.Ecommerce.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_sales_saletypes_saletypeid",
-                        column: x => x.saletypeid,
-                        principalTable: "SaleTypes",
+                        name: "fk_sales_paymentstatus_paymentstatusid",
+                        column: x => x.paymentstatusid,
+                        principalTable: "PaymentStatus",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_sales_paymenttype_paymenttypeid",
+                        column: x => x.paymenttypeid,
+                        principalTable: "PaymentTypes",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -147,6 +177,9 @@ namespace WebApi.Ecommerce.Migrations
                 {
                     saleid = table.Column<Guid>(type: "uuid", nullable: false),
                     productid = table.Column<Guid>(type: "uuid", nullable: false),
+                    amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    quantity = table.Column<int>(type: "INT", nullable: false),
+                    sale = table.Column<decimal>(type: "numeric(19,4)", nullable: true),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     createdat = table.Column<DateTime>(type: "TIMESTAMP", nullable: false),
                     updatedat = table.Column<DateTime>(type: "TIMESTAMP", nullable: true),
@@ -170,6 +203,12 @@ namespace WebApi.Ecommerce.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "Uq_PaymentStatus_PaymentStatusId",
+                table: "PaymentStatus",
+                column: "paymentstatusid",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_saleproducts_productid",
                 table: "SaleProducts",
                 column: "productid");
@@ -180,9 +219,39 @@ namespace WebApi.Ecommerce.Migrations
                 column: "customerid");
 
             migrationBuilder.CreateIndex(
-                name: "ix_sales_saletypeid",
+                name: "ix_sales_paymentstatusid",
                 table: "Sales",
-                column: "saletypeid");
+                column: "paymentstatusid");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_sales_paymenttypeid",
+                table: "Sales",
+                column: "paymenttypeid");
+
+            migrationBuilder.Sql(@"
+                                    INSERT INTO public.""PaymentTypes""
+                                        (id, description, iscreditcard, createdat, updatedat, active)
+                                    VALUES
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 'Débito', true, now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 'Crédito', true, now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 'Boleto', false, now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 'Pix', false, now(), null, true);
+            ");
+
+            migrationBuilder.Sql(@"
+									INSERT INTO public.""PaymentStatus""
+                                        (id, paymentstatusid, description, createdat, updatedat, active)
+                                    VALUES
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 1, 'Pedido Gerado', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 2, 'Aguardando Pagamento', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 3, 'Pagamento Confirmado', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 4, 'Aguardando Envio', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 5, 'Enviado', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 6, 'Em Transito', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 7, 'Em Rota de Entrega', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 8, 'Entregue', now(), null, true),
+                                        (md5(random()::text || clock_timestamp()::text)::uuid, 9, 'Pagamento Recusado', now(), null, true);
+            ");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -206,7 +275,10 @@ namespace WebApi.Ecommerce.Migrations
                 name: "Customers");
 
             migrationBuilder.DropTable(
-                name: "SaleTypes");
+                name: "PaymentStatus");
+
+            migrationBuilder.DropTable(
+                name: "PaymentTypes");
         }
     }
 }

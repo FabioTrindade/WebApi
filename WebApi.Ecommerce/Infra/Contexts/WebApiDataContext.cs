@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
-using WebApi.Ecommerce.Domain.DTOs;
 using WebApi.Ecommerce.Domain.Entities;
 using WebApi.Ecommerce.Infra.Mappings;
 
@@ -36,11 +35,12 @@ namespace WebApi.Ecommerce.Infra.Contexts
 
             new CustomerMapping(modelBuilder.Entity<Customer>());
             new ProductMapping(modelBuilder.Entity<Product>());
-            new SaleTypeMapping(modelBuilder.Entity<SaleType>());
             new SaleMapping(modelBuilder.Entity<Sale>());
             new SaleProductMapping(modelBuilder.Entity<SaleProduct>());
             new LogRequestMapping(modelBuilder.Entity<LogRequest>());
             new LogErroMapping(modelBuilder.Entity<LogErro>());
+            new PaymentTypeMapping(modelBuilder.Entity<PaymentType>());
+            new PaymentStatusMapping(modelBuilder.Entity<PaymentStatus>());
         }
 
         /// <summary>

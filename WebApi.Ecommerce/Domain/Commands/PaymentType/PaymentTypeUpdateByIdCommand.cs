@@ -4,9 +4,9 @@ using System;
 using System.Text.Json.Serialization;
 using WebApi.Ecommerce.Domain.Services;
 
-namespace WebApi.Ecommerce.Domain.Commands.SaleType
+namespace WebApi.Ecommerce.Domain.Commands.PaymentType
 {
-    public class SaleTypeUpdateByIdCommand : Notifiable<Notification>, ICommand
+    public class PaymentTypeUpdateByIdCommand : Notifiable<Notification>, ICommand
     {
         [JsonIgnore]
         public Guid Id { get; set; }

@@ -1,11 +1,11 @@
 ﻿using System;
 using WebApi.Ecommerce.Domain.Services;
 
-namespace WebApi.Ecommerce.Domain.Commands.SaleType
+namespace WebApi.Ecommerce.Domain.Commands.Sale
 {
-    public class SaleTypeGetByIdCommand : ICommand
+    public class SaleGetByIdCommand : ICommand
     {
-        public SaleTypeGetByIdCommand(Guid id)
+        public SaleGetByIdCommand(Guid id)
         {
             Id = id;
         }

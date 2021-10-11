@@ -65,6 +65,7 @@ namespace WebApi.Ecommerce.Services.Services
         public async Task<GenericCommandResult> Handle(ProductGetByIdCommand command)
         {
             var result = await _productRepository.GetByIdAsync(command.Id);
+
             var product = new ProductDTO(   
                                             id: result.Id,
                                             createdAt: result.CreatedAt,

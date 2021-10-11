@@ -3,18 +3,19 @@ using WebApi.Ecommerce.Domain.Abstracts;
 
 namespace WebApi.Ecommerce.Domain.Entities
 {
-    public class SaleType : Entity
+    public class PaymentType : Entity
     {
         // Constructor
-        public SaleType()
+        public PaymentType()
         {
         }
 
-        public SaleType(string description)
+        public PaymentType(string description
+            , bool isCreditCard)
         {
             Description = description;
+            IsCreditCard = isCreditCard;
         }
-
 
         // Property
         /// <summary>
@@ -22,6 +23,10 @@ namespace WebApi.Ecommerce.Domain.Entities
         /// </summary>
         public string Description { get; private set; }
 
+        /// <summary>
+        /// Atributo utilizado para definir se é necessario informar o numero do cartão no ato da venda
+        /// </summary>
+        public bool IsCreditCard { get; private set; }
 
         // Relationshoip
         public virtual ICollection<Sale> Sales { get; set; }

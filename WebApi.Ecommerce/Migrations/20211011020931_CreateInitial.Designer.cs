@@ -10,7 +10,7 @@ using WebApi.Ecommerce.Infra.Contexts;
 namespace WebApi.Ecommerce.Migrations
 {
     [DbContext(typeof(WebApiDataContext))]
-    [Migration("20211009164054_CreateInitial")]
+    [Migration("20211011020931_CreateInitial")]
     partial class CreateInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -233,6 +233,84 @@ namespace WebApi.Ecommerce.Migrations
                     b.ToTable("LogRequests");
                 });
 
+            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.PaymentStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("active")
+                        .HasDefaultValueSql("TRUE");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("createdat");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(200)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("PaymentStatusId")
+                        .HasColumnType("INT")
+                        .HasColumnName("paymentstatusid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("Pk_PaymentStatus_Id");
+
+                    b.HasIndex("PaymentStatusId")
+                        .IsUnique()
+                        .HasDatabaseName("Uq_PaymentStatus_PaymentStatusId");
+
+                    b.ToTable("PaymentStatus");
+                });
+
+            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.PaymentType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("active")
+                        .HasDefaultValueSql("TRUE");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("createdat");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsCreditCard")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("iscreditcard")
+                        .HasDefaultValueSql("FALSE");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("Pk_PaymentTypes_Id");
+
+                    b.ToTable("PaymentTypes");
+                });
+
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -301,17 +379,45 @@ namespace WebApi.Ecommerce.Migrations
                         .HasColumnType("TIMESTAMP")
                         .HasColumnName("createdat");
 
+                    b.Property<string>("CreditCard")
+                        .HasColumnType("VARCHAR(20)")
+                        .HasColumnName("creditcard");
+
+                    b.Property<string>("CreditCardName")
+                        .HasColumnType("VARCHAR(200)")
+                        .HasColumnName("creditcardname");
+
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid")
                         .HasColumnName("customerid");
 
-                    b.Property<Guid?>("SaleTypeId")
+                    b.Property<Guid?>("PaymentStatusId")
                         .HasColumnType("uuid")
-                        .HasColumnName("saletypeid");
+                        .HasColumnName("paymentstatusid");
+
+                    b.Property<Guid?>("PaymentTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("paymenttypeid");
+
+                    b.Property<string>("Transaction")
+                        .HasColumnType("VARCHAR(50)")
+                        .HasColumnName("transaction");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TIMESTAMP")
                         .HasColumnName("updatedat");
+
+                    b.Property<string>("ValidityMonth")
+                        .HasColumnType("VARCHAR(2)")
+                        .HasColumnName("validitymonth");
+
+                    b.Property<string>("ValidityYear")
+                        .HasColumnType("VARCHAR(4)")
+                        .HasColumnName("validityyear");
+
+                    b.Property<string>("VerificationCode")
+                        .HasColumnType("VARCHAR(5)")
+                        .HasColumnName("verificationcode");
 
                     b.HasKey("Id")
                         .HasName("Pk_Sales_Id");
@@ -319,8 +425,11 @@ namespace WebApi.Ecommerce.Migrations
                     b.HasIndex("CustomerId")
                         .HasDatabaseName("ix_sales_customerid");
 
-                    b.HasIndex("SaleTypeId")
-                        .HasDatabaseName("ix_sales_saletypeid");
+                    b.HasIndex("PaymentStatusId")
+                        .HasDatabaseName("ix_sales_paymentstatusid");
+
+                    b.HasIndex("PaymentTypeId")
+                        .HasDatabaseName("ix_sales_paymenttypeid");
 
                     b.ToTable("Sales");
                 });
@@ -341,6 +450,10 @@ namespace WebApi.Ecommerce.Migrations
                         .HasColumnName("active")
                         .HasDefaultValueSql("TRUE");
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TIMESTAMP")
                         .HasColumnName("createdat");
@@ -348,6 +461,14 @@ namespace WebApi.Ecommerce.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INT")
+                        .HasColumnName("quantity");
+
+                    b.Property<decimal?>("Sale")
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("sale");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TIMESTAMP")
@@ -362,38 +483,6 @@ namespace WebApi.Ecommerce.Migrations
                     b.ToTable("SaleProducts");
                 });
 
-            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasColumnName("active")
-                        .HasDefaultValueSql("TRUE");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("createdat");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("updatedat");
-
-                    b.HasKey("Id")
-                        .HasName("Pk_SaleTypes_Id");
-
-                    b.ToTable("SaleTypes");
-                });
-
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.Sale", b =>
                 {
                     b.HasOne("WebApi.Ecommerce.Domain.Entities.Customer", "Customer")
@@ -402,15 +491,23 @@ namespace WebApi.Ecommerce.Migrations
                         .HasConstraintName("fk_sales_customers_customerid")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("WebApi.Ecommerce.Domain.Entities.SaleType", "SaleType")
+                    b.HasOne("WebApi.Ecommerce.Domain.Entities.PaymentStatus", "PaymentStatus")
                         .WithMany("Sales")
-                        .HasForeignKey("SaleTypeId")
-                        .HasConstraintName("fk_sales_saletypes_saletypeid")
+                        .HasForeignKey("PaymentStatusId")
+                        .HasConstraintName("fk_sales_paymentstatus_paymentstatusid")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WebApi.Ecommerce.Domain.Entities.PaymentType", "PaymentType")
+                        .WithMany("Sales")
+                        .HasForeignKey("PaymentTypeId")
+                        .HasConstraintName("fk_sales_paymenttype_paymenttypeid")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Customer");
 
-                    b.Navigation("SaleType");
+                    b.Navigation("PaymentStatus");
+
+                    b.Navigation("PaymentType");
                 });
 
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleProduct", b =>
@@ -439,6 +536,16 @@ namespace WebApi.Ecommerce.Migrations
                     b.Navigation("Sales");
                 });
 
+            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.PaymentStatus", b =>
+                {
+                    b.Navigation("Sales");
+                });
+
+            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.PaymentType", b =>
+                {
+                    b.Navigation("Sales");
+                });
+
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.Product", b =>
                 {
                     b.Navigation("SaleProducts");
@@ -447,11 +554,6 @@ namespace WebApi.Ecommerce.Migrations
             modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.Sale", b =>
                 {
                     b.Navigation("SaleProducts");
-                });
-
-            modelBuilder.Entity("WebApi.Ecommerce.Domain.Entities.SaleType", b =>
-                {
-                    b.Navigation("Sales");
                 });
 #pragma warning restore 612, 618
         }

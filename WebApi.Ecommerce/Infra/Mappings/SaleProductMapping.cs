@@ -13,6 +13,8 @@ namespace WebApi.Ecommerce.Infra.Mappings
             entityBuilder.Property(t => t.CreatedAt).IsRequired().HasColumnType("TIMESTAMP");
             entityBuilder.Property(t => t.UpdatedAt).HasColumnType("TIMESTAMP");
             entityBuilder.Property(t => t.Active).IsRequired().HasDefaultValueSql("TRUE");
+            entityBuilder.Property(t => t.Quantity).IsRequired().HasColumnType("INT");
+            entityBuilder.Property(t => t.Sale).IsRequired(false).HasColumnType("DECIMAL(19, 4)");
 
             entityBuilder.HasKey(sp => new { sp.SaleId, sp.ProductId });
 

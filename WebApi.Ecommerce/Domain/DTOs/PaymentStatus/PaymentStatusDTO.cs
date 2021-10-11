@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace WebApi.Ecommerce.Domain.DTOs
+namespace WebApi.Ecommerce.Domain.DTOs.PaymentStatus
 {
-    public class SaleTypeDTO : EntityDTO
+    public class PaymentStatusDTO : EntityDTO
     {
         // Constructor
-        public SaleTypeDTO(Guid id
+        public PaymentStatusDTO(Guid id
             , DateTime createdAt
             , DateTime? updatedAt
             , bool active
@@ -20,8 +20,8 @@ namespace WebApi.Ecommerce.Domain.DTOs
 
         // Properties
         /// <summary>
-        /// Atributo utilizado para definir a descrição do produto
+        /// Atributo utilizado para definir a descrição do tipo de pagamento
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; private set; }
     }
 }

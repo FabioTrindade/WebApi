@@ -2,12 +2,14 @@
 using Flunt.Validations;
 using WebApi.Ecommerce.Domain.Services;
 
-namespace WebApi.Ecommerce.Domain.Commands.SaleType
+namespace WebApi.Ecommerce.Domain.Commands.PaymentStatus
 {
-    public class SaleTypeCreateCommand : Notifiable<Notification>, ICommand
+    public class PaymentStatusCreateCommand : Notifiable<Notification>, ICommand
     {
         // Properties
         public string Description { get; set; }
+
+        public int PaymentStatusId { get; set; }
 
         public void Validate()
         {

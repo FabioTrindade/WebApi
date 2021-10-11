@@ -4,6 +4,11 @@ namespace WebApi.Ecommerce.Domain.DTOs.Customer
 {
     public class CustomerDTO : EntityDTO
     {
+        // Constructor
+        public CustomerDTO()
+        {
+        }
+
         public CustomerDTO(Guid id
             , DateTime createdAt
             , DateTime? updatedAt

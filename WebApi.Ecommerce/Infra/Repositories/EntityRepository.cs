@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -79,6 +80,56 @@ namespace WebApi.Ecommerce.Infra.Repositories
         public virtual async Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate)
         {
             return await _dbSet.AsNoTracking().Where(predicate)?.FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<List<T>> QueryAsync<T>(string sql, object parameters = null)
+        {
+            var list = Activator.CreateInstance<List<T>>();
+            try
+            {
+                if (_connection.State == ConnectionState.Closed)
+                    _connection.Open();
+
+                var result = await _connection.QueryAsync<T>(sql, parameters);
+                if (result != null)
+                    list.AddRange(result);
+            }
+            catch (Exception ex)
+            {
+                await _logErroRepository.CreateAsync(new LogErro(method: string.Concat("QUERY ASYNC: ", this.GetType().Name), path: typeof(TEntity).FullName, erro: ex.Message, erroCompleto: ex.ToString(), query: sql));
+                throw new Exception(sql, ex);
+            }
+            finally
+            {
+                if (_connection.State == ConnectionState.Open)
+                {
+                    _connection.Close();
+                }
+            }
+            return list.ToList();
+        }
+
+        public virtual async Task<T> QueryFirstAsync<T>(string sql, object parameters = null)
+        {
+            try
+            {
+                if (_connection.State == ConnectionState.Closed)
+                    _connection.Open();
+
+                return await _connection.QueryFirstAsync<T>(sql, parameters);
+            }
+            catch (Exception ex)
+            {
+                await _logErroRepository.CreateAsync(new LogErro(method: string.Concat("QUERY FIRST ASYNC: ", this.GetType().Name), path: typeof(TEntity).FullName, erro: ex.Message, erroCompleto: ex.ToString(), query: sql));
+                throw new Exception(sql, ex);
+            }
+            finally
+            {
+                if (_connection.State == ConnectionState.Open)
+                {
+                    _connection.Close();
+                }
+            }
         }
 
         public virtual async Task<BootstrapTablePaginationDTO<PaginatedEntity>> QueryPaginatedAsync<PaginatedEntity>(string sql, BootstrapTableCommand filter, object parameters = null) where PaginatedEntity : Paginated

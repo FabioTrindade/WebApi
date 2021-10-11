@@ -37,18 +37,21 @@ namespace WebApi.Ecommerce.Configurations
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ILogErroRepository, LogErroRepository>();
             services.AddScoped<ILogRequestRepository, LogRequestRepository>();
+            services.AddScoped<IPaymentStatusRepository, PaymentStatusRepository>();
+            services.AddScoped<IPaymentTypeRepository, PaymentTypeRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ISaleProductRepository, SaleProductRepository>();
             services.AddScoped<ISaleRepository, SaleRepository>();
-            services.AddScoped<ISaleTypeRepository, SaleTypeRepository>();
 
             #endregion
 
             #region Service
 
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IPaymentStatusService, PaymentStatusService>();
+            services.AddScoped<IPaymentTypeService, PaymentTypeService>();
             services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ISaleTypeService, SaleTypeService>();
+            services.AddScoped<ISaleService, SaleService>();
 
             #endregion
 

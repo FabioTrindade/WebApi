@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Abstracts;
@@ -18,6 +19,10 @@ namespace WebApi.Ecommerce.Domain.Repositories
         Task<TEntity> GetByIdAsync(Guid id);
 
         Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
+
+        Task<List<T>> QueryAsync<T>(string sql, object parameters = null);
+
+        Task<T> QueryFirstAsync<T>(string sql, object parameters = null);
 
         Task<BootstrapTablePaginationDTO<PaginatedEntity>> QueryPaginatedAsync<PaginatedEntity>(string sql, BootstrapTableCommand filter, object parameters = null) where PaginatedEntity : Paginated;
     }
