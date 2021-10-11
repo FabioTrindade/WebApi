@@ -48,6 +48,15 @@ namespace WebApi.Ecommerce.Controllers
             return Ok(result);
         }
 
+        [HttpGet("/v1/[controller]/HasInventory")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> HasInventory([FromQuery] ProductHasInventoryGetPaginationCommand command)
+        {
+            var result = await _productService.Handle(command);
+            return Ok(result);
+        }
+
         [HttpPatch("/v1/[controller]/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDTO))]
         public async Task<IActionResult> UpdateById([FromRoute] Guid id, [FromBody] ProductUpdateByIdCommand command)

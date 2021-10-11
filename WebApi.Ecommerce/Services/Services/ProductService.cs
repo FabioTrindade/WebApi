@@ -110,6 +110,35 @@ namespace WebApi.Ecommerce.Services.Services
             return new GenericCommandResult(true, "");
         }
 
+        public async Task<GenericCommandResult> Handle(ProductHasInventoryGetPaginationCommand command)
+        {
+            command.Validate();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            var filter = new BootstrapTableCommand()
+            {
+                Limit = command.PerPage,
+                Offset = command.CurrentPage,
+                Sort = command.OrderBy,
+                Order = command.SortBy
+            };
+
+            var result = await _productRepository.QueryPaginationAsync(filter, command);
+
+            var productPaginationDTO = new ProductPaginationDTO();
+            productPaginationDTO.Product.AddRange(result.Rows);
+            productPaginationDTO.PerPage = command.PerPage;
+            productPaginationDTO.CurrentPage = command.CurrentPage;
+            productPaginationDTO.LastPage = ((int)productPaginationDTO.Total / command.PerPage);
+            productPaginationDTO.Total = (int)productPaginationDTO.Total;
+
+            return new GenericCommandResult(true, "");
+        }
+
         public async Task<GenericCommandResult> Handle(ProductUpdateByIdCommand command)
         {
             command.Validate();
