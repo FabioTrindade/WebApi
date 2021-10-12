@@ -30,15 +30,14 @@ namespace WebApi.Ecommerce
             services.AddSwaggerGen(c =>
             {
                 c.OperationFilter<SwaggerIgnoreFilter>();
-
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi.Ecommerce", Version = "v1" });
             });
 
             // Connection with database
             services.AddDbContext<WebApiDataContext>(options =>
                 options
-                .UseNpgsql(Configuration.GetConnectionString("WebApiConnection"), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
-                .UseLowerCaseNamingConvention()
+                    .UseNpgsql(Configuration.GetConnectionString("WebApiConnection"), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
+                    .UseLowerCaseNamingConvention()
             );
 
             // Dependecy Injection
@@ -51,15 +50,13 @@ namespace WebApi.Ecommerce
             // Initialize database
             InitializeDatabase(app);
 
-            app.UseDeveloperExceptionPage();
-
             SetConfigureSwagger(app);
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             // Middleware Logging Request and Response
             app.UseMiddleware<RequestAndResponseLoggingMiddleware>();
@@ -81,11 +78,12 @@ namespace WebApi.Ecommerce
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi.Ecommerce v1");
                 c.RoutePrefix = "swagger";
                 c.DefaultModelsExpandDepth(-1);
+                c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
             });
         }
 
         /// Create database end execute migrations on startar project
-        private void InitializeDatabase(IApplicationBuilder app)
+        private static void InitializeDatabase(IApplicationBuilder app)
         {
             var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
             scope.ServiceProvider.GetRequiredService<WebApiDataContext>().Database.Migrate();

@@ -6,7 +6,8 @@ namespace WebApi.Ecommerce.Infra.Repositories
 {
     public class SaleRepository : EntityRepository<Sale>, ISaleRepository
     {
-        public SaleRepository(WebApiDataContext context) : base (context)
+        public SaleRepository(WebApiDataContext context
+            , ILogErroRepository logErroRepository) : base(context, logErroRepository)
         {
         }
     }

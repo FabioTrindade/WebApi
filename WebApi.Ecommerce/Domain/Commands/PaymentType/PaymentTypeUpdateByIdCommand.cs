@@ -16,8 +16,8 @@ namespace WebApi.Ecommerce.Domain.Commands.PaymentType
         public void Validate()
         {
             AddNotifications(new Contract<Notification>().Requires()
-                    .IsNotNullOrEmpty(Description, "Descrição", "Faz necessário preencher a descrição do tipo de pagamento.")
-                    .IsGreaterThan(Description, 5, "Descrição", "A descrição do tipo de pagamento deve conter mais de 5 caracteres.")
+                    .IsNotNullOrEmpty(Description, "Description", "Faz necessário preencher a descrição do tipo de pagamento.")
+                    .IsGreaterThan(Description, 5, "Description", "A descrição do tipo de pagamento deve conter mais de 5 caracteres.")
                 );
         }
     }

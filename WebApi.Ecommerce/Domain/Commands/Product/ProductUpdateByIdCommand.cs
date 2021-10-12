@@ -24,15 +24,15 @@ namespace WebApi.Ecommerce.Domain.Commands.Product
         public void Validate()
         {
             AddNotifications(new Contract<Notification>().Requires()
-                    .IsNotNullOrEmpty(Description, "Descrição", "Faz necessário preencher a descrição do produto.")
+                    .IsNotNullOrEmpty(Description, "Description", "Faz necessário preencher a descrição do produto.")
                     .IsNotNullOrEmpty(SKU, "SKU", "Faz necessário preencher o identificador SKU do produto.")
-                    .IsLowerThan(Amount, 0, "Preço Venda", "Faz necessário informar o valor de venda do produto.")
+                    .IsLowerThan(Amount, 0, "Amount", "Faz necessário informar o valor de venda do produto.")
                 );
 
             if (Sale is not null)
             {
                 AddNotifications(new Contract<Notification>().Requires()
-                    .IsLowerThan(Sale.GetValueOrDefault(), 0, "Preço Promoção", "Faz necessário informar o valor de promoção do produto.")
+                    .IsLowerThan(Sale.GetValueOrDefault(), 0, "Sale", "Faz necessário informar o valor de promoção do produto.")
                 );
             }
         }

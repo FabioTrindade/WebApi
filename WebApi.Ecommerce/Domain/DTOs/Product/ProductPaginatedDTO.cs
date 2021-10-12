@@ -25,6 +25,7 @@ namespace WebApi.Ecommerce.Domain.DTOs.Product
         /// Atributo utilizado para definir se o registro esta ativo
         /// </summary>
         public bool Active { get; set; }
+
         /// <summary>
         /// Atributo utilizado para definir a descrição do produto
         /// </summary>

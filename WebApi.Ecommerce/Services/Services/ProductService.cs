@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using WebApi.Ecommerce.Configurations;
 using WebApi.Ecommerce.Domain.Commands;
 using WebApi.Ecommerce.Domain.Commands.Product;
@@ -33,13 +34,13 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (ExistIdentifierSku(command.SKU).GetAwaiter().GetResult())
             {
-                command.AddNotification("SKU", "O identificador SKU encontra-se em uso.");
+                command.AddNotification(key: "SKU", message: "O identificador SKU encontra-se em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
             var newProduct = new Product(
-                                            description: command.Description.Trim(), 
-                                            sku: command.SKU.Trim(), 
+                                            description: command.Description.ToUpper().Trim(),
+                                            sku: command.SKU.ToUpper().Trim(),
                                             amount: command.Amount, 
                                             quantity: command.Quantity, 
                                             sale: command.Sale
@@ -98,45 +99,16 @@ namespace WebApi.Ecommerce.Services.Services
                 Order = command.SortBy
             };
 
-            var result = await _productRepository.QueryPaginationAsync(filter, command);
+            var product = await _productRepository.QueryPaginationAsync(filter, command);
 
             var productPaginationDTO = new ProductPaginationDTO();
-            productPaginationDTO.Product.AddRange(result.Rows);
+            productPaginationDTO.Product.AddRange(product.Rows);
             productPaginationDTO.PerPage = command.PerPage;
             productPaginationDTO.CurrentPage = command.CurrentPage;
-            productPaginationDTO.LastPage = ((int)productPaginationDTO.Total / command.PerPage);
-            productPaginationDTO.Total = (int)productPaginationDTO.Total;
+            productPaginationDTO.LastPage = (product.Total / command.PerPage);
+            productPaginationDTO.Total = product.Total;
 
-            return new GenericCommandResult(true, "");
-        }
-
-        public async Task<GenericCommandResult> Handle(ProductHasInventoryGetPaginationCommand command)
-        {
-            command.Validate();
-
-            if (!command.IsValid)
-            {
-                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
-            }
-
-            var filter = new BootstrapTableCommand()
-            {
-                Limit = command.PerPage,
-                Offset = command.CurrentPage,
-                Sort = command.OrderBy,
-                Order = command.SortBy
-            };
-
-            var result = await _productRepository.QueryPaginationAsync(filter, command);
-
-            var productPaginationDTO = new ProductPaginationDTO();
-            productPaginationDTO.Product.AddRange(result.Rows);
-            productPaginationDTO.PerPage = command.PerPage;
-            productPaginationDTO.CurrentPage = command.CurrentPage;
-            productPaginationDTO.LastPage = ((int)productPaginationDTO.Total / command.PerPage);
-            productPaginationDTO.Total = (int)productPaginationDTO.Total;
-
-            return new GenericCommandResult(true, "");
+            return new GenericCommandResult(true, "", productPaginationDTO);
         }
 
         public async Task<GenericCommandResult> Handle(ProductUpdateByIdCommand command)
@@ -153,7 +125,7 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (ExistIdentifierSku(command.SKU).GetAwaiter().GetResult())
             {
-                command.AddNotification("SKU", "O identificador SKU encontra-se em uso.");
+                command.AddNotification(key: "SKU", message: "O identificador SKU encontra-se em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
@@ -171,7 +143,7 @@ namespace WebApi.Ecommerce.Services.Services
             }
             else
             {
-                command.AddNotification("Produto", "Não conseguimos identificar alteração no produto.");
+                command.AddNotification(key: "Produto", message: "Não conseguimos identificar alteração no produto.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
@@ -180,15 +152,20 @@ namespace WebApi.Ecommerce.Services.Services
 
         public async Task<GenericCommandResult> Handle(ProductDeleteByIdCommand command)
         {
-            var result = await _productRepository.GetByIdAsync(command.Id);
-            result.ValidateIfIsNull($"Produto {command.Id} não encontrado.");
+            var product = await _productRepository.GetByIdAsync(command.Id);
+            product.ValidateIfIsNull($"Produto {command.Id} não encontrado.");
+
+            product.SetActive(false);
+            product.SetUpdatedAt(DateTime.Now);
+
+            await _productRepository.UpdateAsync(product);
 
             return new GenericCommandResult(true, "");
         }
 
         private async Task<bool> ExistIdentifierSku(string Sku)
         {
-            var existSku = await _productRepository.Get(t => t.SKU == Sku.Trim());
+            var existSku = await _productRepository.Get(t => t.SKU.ToUpper() == Sku.ToUpper().Trim());
 
             if (existSku is not null)
             {

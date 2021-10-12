@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Commands.Customer;
 using WebApi.Ecommerce.Domain.DTOs.Customer;
@@ -35,6 +36,15 @@ namespace WebApi.Ecommerce.Controllers
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var result = await _customerService.Handle(new CustomerGetByIdCommand(id));
+            return Ok(result);
+        }
+
+        [HttpGet("/v1/[controller]")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CustomerDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagination([FromQuery] CustomerGetPaginationCommand command)
+        {
+            var result = await _customerService.Handle(command);
             return Ok(result);
         }
     }

@@ -68,6 +68,7 @@ namespace WebApi.Ecommerce.Configurations
         private static void SetSettings(IConfiguration configuration)
         {
             // Settings
+            Settings.ConnectionString = configuration.GetConnectionString("WebApiConnection");
             Settings.ViaCep = configuration.GetSection("HelpUrl").GetSection("ViaCep").Value;
             Settings.City = configuration.GetSection("Shipping").GetSection("City").Value;
             Settings.State = configuration.GetSection("Shipping").GetSection("State").Value;

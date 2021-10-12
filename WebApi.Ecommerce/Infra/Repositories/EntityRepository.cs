@@ -27,12 +27,14 @@ namespace WebApi.Ecommerce.Infra.Repositories
         {
             _context = context;
             _dbSet = context.Set<TEntity>();
+            _connection = new NpgsqlConnection(Configurations.Settings.ConnectionString);
         }
 
         public EntityRepository(WebApiDataContext context, ILogErroRepository logErroRepository)
         {
             _context = context;
             _dbSet = context.Set<TEntity>();
+            _connection = new NpgsqlConnection(Configurations.Settings.ConnectionString);
             _logErroRepository = logErroRepository;
         }
 
@@ -139,7 +141,7 @@ namespace WebApi.Ecommerce.Infra.Repositories
             try
             {
                 sql += $" ORDER BY {filter.Sort} {filter.Order}";
-                sql += $" LIMIT {filter.Limit} OFFSET {filter.Offset}";
+                sql += $" LIMIT {filter.Limit} OFFSET {(filter.Offset - 1) * filter.Limit}";
 
                 if (_connection.State == ConnectionState.Closed)
                     _connection.Open();
@@ -178,6 +180,5 @@ namespace WebApi.Ecommerce.Infra.Repositories
         {
             _context.Dispose();
         }
-
     }
 }

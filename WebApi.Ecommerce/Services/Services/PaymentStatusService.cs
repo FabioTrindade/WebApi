@@ -33,13 +33,13 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (ExistPaymentStatus(command.Description).GetAwaiter().GetResult())
             {
-                command.AddNotification("Descrição", $"A descrição '{command.Description}' consta em uso.");
+                command.AddNotification(key: "Descrição", message: $"A descrição '{command.Description}' consta em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
             if (ExistPaymentStatusId(command.PaymentStatusId).GetAwaiter().GetResult())
             {
-                command.AddNotification("Status Id", $"O status id '{command.PaymentStatusId}' consta em uso.");
+                command.AddNotification(key: "Status Id", message: $"O status id '{command.PaymentStatusId}' consta em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
@@ -62,6 +62,35 @@ namespace WebApi.Ecommerce.Services.Services
             return new GenericCommandResult(true, "", paymentStatus);
         }
 
+        public async Task<GenericCommandResult> Handle(PaymentStatusGetPaginationCommand command)
+        {
+            command.Validate();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            var filter = new BootstrapTableCommand()
+            {
+                Limit = command.PerPage,
+                Offset = command.CurrentPage,
+                Sort = command.OrderBy,
+                Order = command.SortBy
+            };
+
+            var paymentStatus = await _paymentStatusRepository.QueryPaginationAsync(filter, command);
+
+            var paymentStatusPaginationDTO = new PaymentStatusPaginationDTO();
+            paymentStatusPaginationDTO.PaymentType.AddRange(paymentStatus.Rows);
+            paymentStatusPaginationDTO.PerPage = command.PerPage;
+            paymentStatusPaginationDTO.CurrentPage = command.CurrentPage;
+            paymentStatusPaginationDTO.LastPage = (paymentStatus.Total / command.PerPage);
+            paymentStatusPaginationDTO.Total = paymentStatus.Total;
+
+            return new GenericCommandResult(true, "", paymentStatusPaginationDTO);
+        }
+
         public async Task<GenericCommandResult> Handle(PaymentStatusUpdateByIdCommand command)
         {
             command.Validate();
@@ -76,7 +105,7 @@ namespace WebApi.Ecommerce.Services.Services
 
             if (ExistPaymentStatus(command.Description).GetAwaiter().GetResult())
             {
-                command.AddNotification("Tipo Pagamento", "O status de pagamento encontra-se em uso.");
+                command.AddNotification(key: "Tipo Pagamento", message: "O status de pagamento encontra-se em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
@@ -90,7 +119,7 @@ namespace WebApi.Ecommerce.Services.Services
             }
             else
             {
-                command.AddNotification("Tipo Pagamento", "Não conseguimos identificar alteração no status de pagamento.");
+                command.AddNotification(key: "Tipo Pagamento", message: "Não conseguimos identificar alteração no status de pagamento.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 

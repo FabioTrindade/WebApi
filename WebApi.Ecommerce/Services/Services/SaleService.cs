@@ -50,7 +50,7 @@ namespace WebApi.Ecommerce.Services.Services
             ValidCustomerExists(command.CustomerId);
 
             // Valida tipo de pagamento
-            if (SaleTypeExistsAndValidateCard(command.SaleTypeId).GetAwaiter().GetResult())
+            if (SaleTypeExistsAndValidateCard(command.PaymentTypeId).GetAwaiter().GetResult())
             {
                 command.ValidateCreditCard();
 
@@ -60,16 +60,29 @@ namespace WebApi.Ecommerce.Services.Services
                 }
             }
 
+            command.ValidateProduct();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
             // Valida se o produto existe e tem em estoque a quantidade informada
             command.Products.ForEach(product =>
             {
                 ValidProductExists(product.ProductId);
 
+                var descriptionProduct = _productRepository.GetByIdAsync(product.ProductId).GetAwaiter().GetResult();
+
                 if (ValidInventoryProduct(produtId: product.ProductId, quantity: product.Quantity).GetAwaiter().GetResult())
                 {
-                    var descriptionProduct = _productRepository.GetByIdAsync(product.ProductId).GetAwaiter().GetResult();
+                    command.AddNotification(key: "Produto", message: $"O produto '{descriptionProduct.Description.ToUpper()}' não possui estoque suficiente.");
+                    throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+                }
 
-                    command.AddNotification("Produto", $"O produto '{descriptionProduct.Description.ToUpper()}' não possui estoque suficiente.");
+                if (ValidAmountProduct(product.ProductId, product.Amount, product.Sale).GetAwaiter().GetResult())
+                {
+                    command.AddNotification(key: "Produto", message: $"O produto '{descriptionProduct.Description.ToUpper()}' esta com valor de venda/promoção inferior ao praticado.");
                     throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
                 }
             });
@@ -181,6 +194,18 @@ namespace WebApi.Ecommerce.Services.Services
             var existInventoryProduct = await _productRepository.GetByIdAsync(produtId);
 
             if (existInventoryProduct.Quantity < quantity)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task<bool> ValidAmountProduct(Guid produtId, decimal amount, decimal? sale)
+        {
+            var product = await _productRepository.GetByIdAsync(produtId);
+
+            if (amount < product.Amount || sale.GetValueOrDefault() < product.Sale.GetValueOrDefault())
             {
                 return true;
             }

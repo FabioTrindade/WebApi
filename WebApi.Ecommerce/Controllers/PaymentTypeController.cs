@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Commands.PaymentType;
 using WebApi.Ecommerce.Domain.DTOs.PaymentType;
@@ -35,6 +36,15 @@ namespace WebApi.Ecommerce.Controllers
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var result = await _paymentTypeService.Handle(new PaymentTypeGetByIdCommand(id));
+            return Ok(result);
+        }
+
+        [HttpGet("/v1/[controller]")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PaymentTypeDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagination([FromQuery] PaymentTypeGetPaginationCommand command)
+        {
+            var result = await _paymentTypeService.Handle(command);
             return Ok(result);
         }
 

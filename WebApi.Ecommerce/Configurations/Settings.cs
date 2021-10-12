@@ -3,6 +3,11 @@
     public static class Settings
     {
         /// <summary>
+        /// Atributo para definir a connection string
+        /// </summary>
+        public static string ConnectionString { get; set; }
+
+        /// <summary>
         /// Atributo para controlar url para consulta de cep
         /// </summary>
         public static string ViaCep { get; set; }

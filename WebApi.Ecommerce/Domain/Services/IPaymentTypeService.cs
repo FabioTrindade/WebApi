@@ -5,6 +5,7 @@ namespace WebApi.Ecommerce.Domain.Services
     public interface IPaymentTypeService : IService<PaymentTypeCreateCommand>
         , IService<PaymentTypeGetByIdCommand>
         , IService<PaymentTypeUpdateByIdCommand>
+        , IService<PaymentTypeGetPaginationCommand>
     {
     }
 }

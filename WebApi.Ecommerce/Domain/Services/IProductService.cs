@@ -7,7 +7,6 @@ namespace WebApi.Ecommerce.Domain.Services
         , IService<ProductGetPaginationCommand>
         , IService<ProductUpdateByIdCommand>
         , IService<ProductDeleteByIdCommand>
-        , IService<ProductHasInventoryGetPaginationCommand>
     {
     }
 }

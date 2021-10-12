@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Commands.PaymentStatus;
 using WebApi.Ecommerce.Domain.DTOs.PaymentStatus;
@@ -14,11 +15,11 @@ namespace WebApi.Ecommerce.Controllers
     [Route("api")]
     public class PaymentStatusController : ControllerBase
     {
-        private readonly IPaymentStatusService _PaymentStatusService;
+        private readonly IPaymentStatusService _paymentStatusService;
 
-        public PaymentStatusController(IPaymentStatusService PaymentStatusService)
+        public PaymentStatusController(IPaymentStatusService paymentStatusService)
         {
-            _PaymentStatusService = PaymentStatusService;
+            _paymentStatusService = paymentStatusService;
         }
 
         [HttpPost("/v1/[controller]")]
@@ -26,7 +27,7 @@ namespace WebApi.Ecommerce.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] PaymentStatusCreateCommand command)
         {
-            var result = await _PaymentStatusService.Handle(command);
+            var result = await _paymentStatusService.Handle(command);
             return CreatedAtAction(nameof(GetById), new { id = (result.Data as PaymentStatusDTO).Id }, result.Data);
         }
 
@@ -34,7 +35,16 @@ namespace WebApi.Ecommerce.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaymentStatusDTO))]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var result = await _PaymentStatusService.Handle(new PaymentStatusGetByIdCommand(id));
+            var result = await _paymentStatusService.Handle(new PaymentStatusGetByIdCommand(id));
+            return Ok(result);
+        }
+
+        [HttpGet("/v1/[controller]")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PaymentStatusDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagination([FromQuery] PaymentStatusGetPaginationCommand command)
+        {
+            var result = await _paymentStatusService.Handle(command);
             return Ok(result);
         }
 
@@ -44,7 +54,7 @@ namespace WebApi.Ecommerce.Controllers
         public async Task<IActionResult> UpdateById([FromRoute] Guid id, [FromBody] PaymentStatusUpdateByIdCommand command)
         {
             command.Id = id;
-            var result = await _PaymentStatusService.Handle(command);
+            var result = await _paymentStatusService.Handle(command);
             return Ok(result);
         }
     }

@@ -11,7 +11,5 @@ namespace WebApi.Ecommerce.Domain.Repositories
     {
 
         Task<BootstrapTablePaginationDTO<ProductPaginatedDTO>> QueryPaginationAsync(BootstrapTableCommand filter, ProductGetPaginationCommand command);
-
-        Task<BootstrapTablePaginationDTO<ProductPaginatedDTO>> QueryPaginationAsync(BootstrapTableCommand filter, ProductHasInventoryGetPaginationCommand command);
     }
 }

@@ -39,7 +39,7 @@ namespace WebApi.Ecommerce.Services.Services
             // Valida se o cliente consta na base atraves do documento e e-mail
             if (ExistCustomer(command.Document, command.Email).GetAwaiter().GetResult())
             {
-                command.AddNotification("Cliente", $"O cliente informado já consta em uso.");
+                command.AddNotification(key: "Cliente", message: "O cliente informado já consta em uso.");
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
@@ -110,6 +110,35 @@ namespace WebApi.Ecommerce.Services.Services
                                         );
 
             return new GenericCommandResult(true, "", customer);
+        }
+
+        public async Task<GenericCommandResult> Handle(CustomerGetPaginationCommand command)
+        {
+            command.Validate();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            var filter = new BootstrapTableCommand()
+            {
+                Limit = command.PerPage,
+                Offset = command.CurrentPage,
+                Sort = command.OrderBy,
+                Order = command.SortBy
+            };
+
+            var custumer = await _customerRepository.QueryPaginationAsync(filter, command);
+
+            var customerPaginationDTO = new CustomerPaginationDTO();
+            customerPaginationDTO.Customer.AddRange(custumer.Rows);
+            customerPaginationDTO.PerPage = command.PerPage;
+            customerPaginationDTO.CurrentPage = command.CurrentPage;
+            customerPaginationDTO.LastPage = (custumer.Total / command.PerPage);
+            customerPaginationDTO.Total = custumer.Total;
+
+            return new GenericCommandResult(true, "", customerPaginationDTO);
         }
 
         private async Task<bool> ExistCustomer(string document, string email)

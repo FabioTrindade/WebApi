@@ -70,19 +70,27 @@ namespace WebApi.Ecommerce.Domain.Commands.Customer
         public void Validate()
         {
             AddNotifications(new Contract<Notification>().Requires()
-                    .IsNotNullOrEmpty(Name, "Nome Completo", "É necessário informar o nome completo.")
-                    .IsGreaterThan(Name, 5, "Nome Completo", "O nome completo deve conter mais de 5 caracteres")
-                    .IsNotNullOrEmpty(Address, "Endereço", "É necessário informar o endereço.")
-                    .IsGreaterThan(Address, 5, "Endereço", "O endereço deve conter mais de 5 caracteres")
-                    .IsNotNullOrEmpty(Number, "Número", "É necessário informar o número.")
-                    .IsGreaterThan(Number, 0, "Nome Completo", "O número deve conter mais de 5 caracteres")
-                    .IsNotNullOrEmpty(Neighborhood, "Bairro", "É necessário informar o bairro.")
-                    .IsNotNullOrEmpty(City, "Cidade", "É necessário informar a cidade.")
-                    .IsNotNullOrEmpty(State, "Estado", "É necessário informar o estado.")
-                    .IsNotNullOrEmpty(CellPhone, "Celular", "É necessário informar o celular.")
-                    .IsEmailOrEmpty(Email, "e-mail", "É necessário informar um e-mail.")
-                    .IsFalse(Document.IsValidDocument(), "Documento", "O número de documento não é valido.")
+                    .IsNotNullOrEmpty(Name, "Name", "É necessário informar o nome completo.")
+                    .IsGreaterThan(Name, 5, "Name", "O nome completo deve conter mais de 5 caracteres")
+                    .IsNotNullOrEmpty(Address, "Address", "É necessário informar o endereço.")
+                    .IsGreaterThan(Address, 5, "Address", "O endereço deve conter mais de 5 caracteres")
+                    .IsNotNullOrEmpty(Number, "Number", "É necessário informar o número.")
+                    .IsGreaterThan(Number, 0, "Number", "O número deve conter mais de 5 caracteres")
+                    .IsNotNullOrEmpty(Neighborhood, "Neighborhood", "É necessário informar o bairro.")
+                    .IsNotNullOrEmpty(City, "City", "É necessário informar a cidade.")
+                    .IsNotNullOrEmpty(State, "State", "É necessário informar o estado.")
+                    .IsNotNullOrEmpty(CellPhone, "CellPhone", "É necessário informar o celular.")
+                    .IsTrue(CellPhone.IsValidPhone(), "CellPhone", "É necessário informar o celular válido.")
+                    .IsEmailOrEmpty(Email, "Email", "É necessário informar um e-mail.")
+                    .IsTrue(Document.IsValidDocument(), "Document", "O número de documento não é valido.")
                 );
+
+            if(Phone is not null)
+            {
+                AddNotifications(new Contract<Notification>().Requires()
+                        .IsTrue(Phone.IsValidPhone(), "Phone", "É necessário informar o telefone válido.")
+                    );
+            }
         }
     }
 }
