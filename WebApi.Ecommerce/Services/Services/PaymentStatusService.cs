@@ -109,19 +109,9 @@ namespace WebApi.Ecommerce.Services.Services
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
-            var result = saleType.CompareEx(command);
+            saleType.SetDescription(command.Description);
 
-            if (result)
-            {
-                saleType.SetDescription(command.Description);
-
-                await _paymentStatusRepository.UpdateAsync(saleType);
-            }
-            else
-            {
-                command.AddNotification(key: "Tipo Pagamento", message: "Não conseguimos identificar alteração no status de pagamento.");
-                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
-            }
+            await _paymentStatusRepository.UpdateAsync(saleType);
 
             var paymentStatusDTO = new PaymentStatusDTO(saleType.Id, saleType.CreatedAt, saleType.UpdatedAt, saleType.Active, saleType.Description);
 

@@ -41,22 +41,22 @@ namespace WebApi.Ecommerce.Services.Services
             var newProduct = new Product(
                                             description: command.Description.ToUpper().Trim(),
                                             sku: command.SKU.ToUpper().Trim(),
-                                            amount: command.Amount, 
-                                            quantity: command.Quantity, 
+                                            amount: command.Amount,
+                                            quantity: command.Quantity,
                                             sale: command.Sale
                                         );
 
             await _productRepository.CreateAsync(newProduct);
 
             var product = new ProductDTO(
-                                            id: newProduct.Id, 
-                                            createdAt: newProduct.CreatedAt, 
-                                            updatedAt: newProduct.UpdatedAt, 
-                                            active: newProduct.Active, 
-                                            description: newProduct.Description, 
-                                            sku: newProduct.SKU, 
-                                            amount: newProduct.Amount, 
-                                            quantity: newProduct.Quantity, 
+                                            id: newProduct.Id,
+                                            createdAt: newProduct.CreatedAt,
+                                            updatedAt: newProduct.UpdatedAt,
+                                            active: newProduct.Active,
+                                            description: newProduct.Description,
+                                            sku: newProduct.SKU,
+                                            amount: newProduct.Amount,
+                                            quantity: newProduct.Quantity,
                                             sale: newProduct.Sale
                                         );
 
@@ -67,7 +67,7 @@ namespace WebApi.Ecommerce.Services.Services
         {
             var result = await _productRepository.GetByIdAsync(command.Id);
 
-            var product = new ProductDTO(   
+            var product = new ProductDTO(
                                             id: result.Id,
                                             createdAt: result.CreatedAt,
                                             updatedAt: result.UpdatedAt,
@@ -129,23 +129,13 @@ namespace WebApi.Ecommerce.Services.Services
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
-            var result = product.CompareEx(command);
+            product.SetDescription(command.Description);
+            product.SetSKU(command.SKU);
+            product.SetAmount(command.Amount);
+            product.SetQuantity(command.Quantity);
+            product.SetSale(command.Sale);
 
-            if (result)
-            {
-                product.SetDescription(command.Description);
-                product.SetSKU(command.SKU);
-                product.SetAmount(command.Amount);
-                product.SetQuantity(command.Quantity);
-                product.SetSale(command.Sale);
-
-                await _productRepository.UpdateAsync(product);
-            }
-            else
-            {
-                command.AddNotification(key: "Produto", message: "Não conseguimos identificar alteração no produto.");
-                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
-            }
+            await _productRepository.UpdateAsync(product);
 
             return new GenericCommandResult(true, "");
         }

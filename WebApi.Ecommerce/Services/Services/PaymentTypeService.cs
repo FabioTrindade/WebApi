@@ -103,19 +103,9 @@ namespace WebApi.Ecommerce.Services.Services
                 throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
             }
 
-            var result = paymentType.CompareEx(command);
+            paymentType.SetDescription(command.Description);
 
-            if (result)
-            {
-                paymentType.SetDescription(command.Description);
-
-                await _paymentTypeRepository.UpdateAsync(paymentType);
-            }
-            else
-            {
-                command.AddNotification(key: "Tipo Pagamento", message: "Não conseguimos identificar alteração no tipo de pagamento.");
-                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
-            }
+            await _paymentTypeRepository.UpdateAsync(paymentType);
 
             var paymentTypeDTO = new PaymentTypeDTO(paymentType.Id, paymentType.CreatedAt, paymentType.UpdatedAt, paymentType.Active, paymentType.Description, paymentType.IsCreditCard);
 

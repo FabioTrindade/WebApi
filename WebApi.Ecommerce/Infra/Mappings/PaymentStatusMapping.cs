@@ -16,7 +16,7 @@ namespace WebApi.Ecommerce.Infra.Mappings
             entityBuilder.Property(t => t.Description).IsRequired().HasColumnType("VARCHAR(200)");
             entityBuilder.Property(t => t.PaymentStatusId).IsRequired().HasColumnType("INT");
 
-            entityBuilder.HasIndex(i => i.PaymentStatusId).IsUnique().HasName("Uq_PaymentStatus_PaymentStatusId");
+            entityBuilder.HasIndex(i => i.PaymentStatusId).IsUnique();
         }
     }
 }

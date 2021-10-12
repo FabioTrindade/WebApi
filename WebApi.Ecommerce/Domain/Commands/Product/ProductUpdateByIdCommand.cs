@@ -26,13 +26,13 @@ namespace WebApi.Ecommerce.Domain.Commands.Product
             AddNotifications(new Contract<Notification>().Requires()
                     .IsNotNullOrEmpty(Description, "Description", "Faz necessário preencher a descrição do produto.")
                     .IsNotNullOrEmpty(SKU, "SKU", "Faz necessário preencher o identificador SKU do produto.")
-                    .IsLowerThan(Amount, 0, "Amount", "Faz necessário informar o valor de venda do produto.")
+                    .IsGreaterThan(Amount, 0, "Amount", "Faz necessário informar o valor de venda do produto.")
                 );
 
             if (Sale is not null)
             {
                 AddNotifications(new Contract<Notification>().Requires()
-                    .IsLowerThan(Sale.GetValueOrDefault(), 0, "Sale", "Faz necessário informar o valor de promoção do produto.")
+                    .IsGreaterThan(Sale.GetValueOrDefault(), 0, "Sale", "Faz necessário informar o valor de promoção do produto.")
                 );
             }
         }
