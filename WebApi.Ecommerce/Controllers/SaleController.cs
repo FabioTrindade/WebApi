@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Ecommerce.Domain.Commands.Sale;
 using WebApi.Ecommerce.Domain.DTOs.Sale;
@@ -37,5 +38,24 @@ namespace WebApi.Ecommerce.Controllers
             var result = await _saleService.Handle(new SaleGetByIdCommand(id));
             return Ok(result);
         }
+
+        [HttpGet("/v1/[controller]")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SaleDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagination([FromQuery] SaleGetPaginationCommand command)
+        {
+            var result = await _saleService.Handle(command);
+            return Ok(result);
+        }
+
+        [HttpPatch("/v1/[controller]/cancel/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CancelGetById([FromRoute] Guid id)
+        {
+            var result = await _saleService.Handle(new SaleCancelGetByIdCommandCommand(id));
+            return Ok(result);
+        }
+    
     }
 }

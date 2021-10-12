@@ -82,7 +82,7 @@ namespace WebApi.Ecommerce.Services.Services
             var paymentStatus = await _paymentStatusRepository.QueryPaginationAsync(filter, command);
 
             var paymentStatusPaginationDTO = new PaymentStatusPaginationDTO();
-            paymentStatusPaginationDTO.PaymentType.AddRange(paymentStatus.Rows);
+            paymentStatusPaginationDTO.PaymentTypes.AddRange(paymentStatus.Rows);
             paymentStatusPaginationDTO.PerPage = command.PerPage;
             paymentStatusPaginationDTO.CurrentPage = command.CurrentPage;
             paymentStatusPaginationDTO.LastPage = (paymentStatus.Total / command.PerPage);

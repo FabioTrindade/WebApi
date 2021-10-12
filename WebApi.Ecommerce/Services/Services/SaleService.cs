@@ -4,7 +4,6 @@ using WebApi.Ecommerce.Configurations;
 using WebApi.Ecommerce.Domain.Commands;
 using WebApi.Ecommerce.Domain.Commands.Sale;
 using WebApi.Ecommerce.Domain.DTOs.Sale;
-using WebApi.Ecommerce.Domain.Entities;
 using WebApi.Ecommerce.Domain.Repositories;
 using WebApi.Ecommerce.Domain.Services;
 using WebApi.Ecommerce.Extensions;
@@ -74,12 +73,14 @@ namespace WebApi.Ecommerce.Services.Services
 
                 var descriptionProduct = _productRepository.GetByIdAsync(product.ProductId).GetAwaiter().GetResult();
 
+                // Valida a quantidade
                 if (ValidInventoryProduct(produtId: product.ProductId, quantity: product.Quantity).GetAwaiter().GetResult())
                 {
                     command.AddNotification(key: "Produto", message: $"O produto '{descriptionProduct.Description.ToUpper()}' não possui estoque suficiente.");
                     throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
                 }
 
+                // Valida valor de venda e promoção
                 if (ValidAmountProduct(product.ProductId, product.Amount, product.Sale).GetAwaiter().GetResult())
                 {
                     command.AddNotification(key: "Produto", message: $"O produto '{descriptionProduct.Description.ToUpper()}' esta com valor de venda/promoção inferior ao praticado.");
@@ -87,38 +88,28 @@ namespace WebApi.Ecommerce.Services.Services
                 }
             });
 
-            var paymentStatus = await _paymentStatusRepository.Get(t => t.PaymentStatusId == 1);
+            // Venda realizada via transação
+            var transactionSale = await _saleRepository.TransactionSale(command);
 
-            var newSale = new Sale(
-                                    creditCard: command.CreditCard, 
-                                    verificationCode: command.VerificationCode, 
-                                    validityMonth: command.ValidityMonth, 
-                                    validityYear: command.ValidityYear, 
-                                    creditCardName: command.CreditCardName, 
-                                    paymentStatus: paymentStatus
-                                );
+            transactionSale.ValidateIfIsNull("Não foi possivel realizar a venda.");
 
-            var saleProducts = command.Products.ConvertAll(c => new SaleProduct(
-                                                                                    amount: c.Amount, 
-                                                                                    quantity: c.Quantity, 
-                                                                                    sale: c.Sale, 
-                                                                                    saleId: newSale.Id, 
-                                                                                    productId: c.ProductId
-                                                                                ));
+            // Realiza a baixa do estoque
+            command.Products.ForEach(product =>
+            {
+                ReduceInventory(produtId: product.ProductId, quantity: product.Quantity);
+            });
 
-            await _saleRepository.CreateAsync(newSale);
-
-            var customerDTO = await _customerRepository.GetWithById(newSale.Customer.Id);
-            var paymentTypeDTO = await _paymentTypeRepository.GetWithById(newSale.PaymentType.Id);
-            var paymentStatusDTO = await _paymentStatusRepository.GetWithById(newSale.PaymentType.Id);
-            var saleProductsDTO = await _saleProductRepository.GetWithById(newSale.Id);
+            var customerDTO = await _customerRepository.GetWithById(command.CustomerId);
+            var paymentTypeDTO = await _paymentTypeRepository.GetWithById(command.PaymentTypeId);
+            var paymentStatusDTO = await _paymentStatusRepository.GetWithById(transactionSale.PaymentStatusId);
+            var saleProductsDTO = await _saleProductRepository.GetWithBySaleId(transactionSale.Id);
 
             var saleDTO = new SaleDTO(
-                                        id: newSale.Id,
-                                        createdAt: newSale.CreatedAt,
-                                        updatedAt: newSale.UpdatedAt,
-                                        active: newSale.Active,
-                                        transaction: newSale.Transaction,
+                                        id: transactionSale.Id,
+                                        createdAt: transactionSale.CreatedAt,
+                                        updatedAt: transactionSale.UpdatedAt,
+                                        active: transactionSale.Active,
+                                        transaction: transactionSale.Transaction,
                                         customer: customerDTO,
                                         paymentType: paymentTypeDTO,
                                         paymentStatus: paymentStatusDTO,
@@ -130,30 +121,109 @@ namespace WebApi.Ecommerce.Services.Services
 
         public async Task<GenericCommandResult> Handle(SaleGetByIdCommand command)
         {
+            // Consulta a venda e valida se existe atraves do ID informado
             var sale = await _saleRepository.GetByIdAsync(command.Id);
             sale.ValidateIfIsNull($"Não foi possível identificar a venda {command.Id}.");
 
-            var customerDTO = await _customerRepository.GetWithById(sale.Customer.Id);
-            var paymentTypeDTO = await _paymentTypeRepository.GetWithById(sale.PaymentType.Id);
-            var paymentStatusDTO = await _paymentStatusRepository.GetWithById(sale.PaymentType.Id);
-            var saleProductsDTO = await _saleProductRepository.GetWithById(sale.Id);
+            var customerDTO = await _customerRepository.GetWithById(sale.CustomerId);
+            var paymentTypeDTO = await _paymentTypeRepository.GetWithById(sale.PaymentTypeId);
+            var paymentStatusDTO = await _paymentStatusRepository.GetWithById(sale.PaymentStatusId);
+            var saleProductsDTO = await _saleProductRepository.GetWithBySaleId(sale.Id);
 
             var saleDTO = new SaleDTO(
-                                        id: sale.Id, 
-                                        createdAt: sale.CreatedAt, 
-                                        updatedAt: sale.UpdatedAt, 
-                                        active: sale.Active, 
-                                        transaction: sale.Transaction, 
-                                        customer: customerDTO, 
-                                        paymentType: paymentTypeDTO, 
-                                        paymentStatus: paymentStatusDTO, 
+                                        id: sale.Id,
+                                        createdAt: sale.CreatedAt,
+                                        updatedAt: sale.UpdatedAt,
+                                        active: sale.Active,
+                                        transaction: sale.Transaction,
+                                        customer: customerDTO,
+                                        paymentType: paymentTypeDTO,
+                                        paymentStatus: paymentStatusDTO,
                                         saleProducts: saleProductsDTO
                                     );
 
             return new GenericCommandResult(true, "", saleDTO);
         }
 
+        public async Task<GenericCommandResult> Handle(SaleCancelGetByIdCommandCommand command)
+        {
+            // Consulta a venda e valida se existe atraves do ID informado
+            var sale = await _saleRepository.GetByIdAsync(command.Id);
+            sale.ValidateIfIsNull($"Não foi possível identificar a venda {command.Id}.");
 
+            // Valida se a venda esta cancelada
+            if (ProductCanceled(sale.PaymentStatusId).GetAwaiter().GetResult())
+            {
+                command.AddNotification(key: "Sale", message: $"A venda '{sale.Id}' já encontra-se cancelada.");
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            // Valida se o pedido foi enviado
+            if (CanCancelSale(sale.PaymentStatusId).GetAwaiter().GetResult())
+            {
+                var paymentStatusNow = await _paymentStatusRepository.GetByIdAsync(sale.PaymentStatusId);
+                command.AddNotification(key: "Sale", message: $"A venda '{sale.Id}' não pode ser cancelada, devido estar {paymentStatusNow.Description.ToUpper()}.");
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            // Captura os produtos que contempla a venda
+            var products = await _saleProductRepository.GetWithBySaleId(command.Id);
+
+            // retornar com o produto para o estoque
+            products.ForEach(product => {
+                IncreaseInventory(product.ProductId, product.Quantity);
+            });
+
+            // Retornar o id do status de cancelamento
+            var paymentStatus = await _paymentStatusRepository.Get(t => t.PaymentStatusId == 9);
+
+            // Atualiza o status do pagamento e salva
+            sale.SetPaymentStatusId(paymentStatus.Id);
+            await _saleRepository.UpdateAsync(sale);
+
+            return new GenericCommandResult(true, "");
+        }
+
+        public async Task<GenericCommandResult> Handle(SaleGetPaginationCommand command)
+        {
+            command.Validate();
+
+            if (!command.IsValid)
+            {
+                throw new HttpException(System.Net.HttpStatusCode.BadRequest, new GenericCommandResult(false, "", command.Notifications));
+            }
+
+            var filter = new BootstrapTableCommand()
+            {
+                Limit = command.PerPage,
+                Offset = command.CurrentPage,
+                Sort = command.OrderBy,
+                Order = command.SortBy
+            };
+
+            var sales = await _saleRepository.QueryPaginationAsync(filter, command);
+
+            sales.Rows.ForEach(sale =>
+            {
+                var product = _saleProductRepository.GetWithBySaleId(sale.Id).GetAwaiter().GetResult();
+                sale.Products.AddRange(product);
+            });
+
+            var salePaginationDTO = new SalePaginationDTO();
+            salePaginationDTO.Sales.AddRange(sales.Rows);
+            salePaginationDTO.PerPage = command.PerPage;
+            salePaginationDTO.CurrentPage = command.CurrentPage;
+            salePaginationDTO.LastPage = (sales.Total / command.PerPage);
+            salePaginationDTO.Total = sales.Total;
+
+            return new GenericCommandResult(true, "", salePaginationDTO);
+        }
+
+        // Help Methods
+        /// <summary>
+        /// Valida se o cliente existe
+        /// </summary>
+        /// <param name="customerId"></param>
         private void ValidCustomerExists(Guid customerId)
         {
             var existCustomer = _customerRepository.GetByIdAsync(customerId).GetAwaiter().GetResult();
@@ -161,7 +231,7 @@ namespace WebApi.Ecommerce.Services.Services
         }
 
         /// <summary>
-        /// 
+        /// Valida se o tipo de venda tem validação de cartão do cartao
         /// </summary>
         /// <param name="saleTypeId"></param>
         /// <returns></returns>
@@ -192,33 +262,28 @@ namespace WebApi.Ecommerce.Services.Services
         private async Task<bool> ValidInventoryProduct(Guid produtId, int quantity)
         {
             var existInventoryProduct = await _productRepository.GetByIdAsync(produtId);
-
-            if (existInventoryProduct.Quantity < quantity)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private async Task<bool> ValidAmountProduct(Guid produtId, decimal amount, decimal? sale)
-        {
-            var product = await _productRepository.GetByIdAsync(produtId);
-
-            if (amount < product.Amount || sale.GetValueOrDefault() < product.Sale.GetValueOrDefault())
-            {
-                return true;
-            }
-
-            return false;
+            return (existInventoryProduct.Quantity < quantity);
         }
 
         /// <summary>
-        /// Atualiza o estoque do produto e caso zere inativa o mesmo
+        /// Valida o valor de venda/promoção do produto
+        /// </summary>
+        /// <param name="produtId"></param>
+        /// <param name="amount"></param>
+        /// <param name="sale"></param>
+        /// <returns></returns>
+        private async Task<bool> ValidAmountProduct(Guid produtId, decimal amount, decimal? sale)
+        {
+            var product = await _productRepository.GetByIdAsync(produtId);
+            return (amount < product.Amount || sale.GetValueOrDefault() < product.Sale.GetValueOrDefault());
+        }
+
+        /// <summary>
+        /// Atualiza o estoque do produto quando acontece uma venda caso zere inativa o mesmo
         /// </summary>
         /// <param name="produtId"></param>
         /// <param name="quantity"></param>
-        private void UpdateInventory(Guid produtId, int quantity)
+        private void ReduceInventory(Guid produtId, int quantity)
         {
             var product = _productRepository.GetByIdAsync(produtId).GetAwaiter().GetResult();
 
@@ -226,12 +291,53 @@ namespace WebApi.Ecommerce.Services.Services
 
             product.SetQuantity(newQuantity);
 
-            if(product.Quantity == 0)
+            if (product.Quantity == 0)
             {
                 product.SetActive(false);
+                product.SetUpdatedAt(DateTime.Now);
             }
 
             _productRepository.UpdateAsync(product).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Atualiza o estoque do produto e ativa em caso de cancelamento de venda
+        /// </summary>
+        /// <param name="produtId"></param>
+        /// <param name="quantity"></param>
+        private void IncreaseInventory(Guid produtId, int quantity)
+        {
+            var product = _productRepository.GetByIdAsync(produtId).GetAwaiter().GetResult();
+
+            var newQuantity = (product.Quantity + quantity);
+
+            product.SetQuantity(newQuantity);
+            product.SetActive(true);
+            product.SetUpdatedAt(DateTime.Now);
+
+            _productRepository.UpdateAsync(product).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Valida se a venda não esta cancelada
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private async Task<bool> ProductCanceled(Guid id)
+        {
+            var paymentStatus = await _paymentStatusRepository.GetByIdAsync(id);
+            return (paymentStatus.PaymentStatusId == 9);
+        }
+
+        /// <summary>
+        /// Valida se a venda pode ser cancelada : Antes de seu status ser 5 - Enviado
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private async Task<bool> CanCancelSale(Guid id)
+        {
+            var paymentStatus = await _paymentStatusRepository.GetByIdAsync(id);
+            return (paymentStatus.PaymentStatusId > 4);
         }
     }
 }

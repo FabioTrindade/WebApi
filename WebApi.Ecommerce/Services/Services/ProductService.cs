@@ -102,7 +102,7 @@ namespace WebApi.Ecommerce.Services.Services
             var product = await _productRepository.QueryPaginationAsync(filter, command);
 
             var productPaginationDTO = new ProductPaginationDTO();
-            productPaginationDTO.Product.AddRange(product.Rows);
+            productPaginationDTO.Products.AddRange(product.Rows);
             productPaginationDTO.PerPage = command.PerPage;
             productPaginationDTO.CurrentPage = command.CurrentPage;
             productPaginationDTO.LastPage = (product.Total / command.PerPage);

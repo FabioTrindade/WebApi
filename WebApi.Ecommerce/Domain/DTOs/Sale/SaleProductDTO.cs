@@ -10,6 +10,11 @@ namespace WebApi.Ecommerce.Domain.DTOs.Sale
         public Guid ProductId { get; set; }
 
         /// <summary>
+        /// Atributo utilizado para definir o nome do produto
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Atributo utilizado para definir o preco de venda
         /// </summary>
         public decimal Amount { get; set; }

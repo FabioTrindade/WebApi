@@ -5,6 +5,6 @@ namespace WebApi.Ecommerce.Domain.DTOs.PaymentStatus
 {
     public class PaymentStatusPaginationDTO : Pagination
     {
-        public List<PaymentStatusPaginatedDTO> PaymentType { get; set; } = new List<PaymentStatusPaginatedDTO>();
+        public List<PaymentStatusPaginatedDTO> PaymentTypes { get; set; } = new List<PaymentStatusPaginatedDTO>();
     }
 }

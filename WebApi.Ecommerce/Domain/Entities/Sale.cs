@@ -15,14 +15,20 @@ namespace WebApi.Ecommerce.Domain.Entities
             , string validityMonth
             , string validityYear
             , string creditCardName
-            , PaymentStatus paymentStatus)
+            , Guid customerId
+            , Guid paymentTypeId
+            , Guid paymentStatusId
+            , List<SaleProduct> saleProducts)
         {
             CreditCard = creditCard;
             VerificationCode = verificationCode;
             ValidityMonth = validityMonth;
             ValidityYear = validityYear;
             CreditCardName = creditCardName;
-            PaymentStatus = paymentStatus;
+            CustomerId = customerId;
+            PaymentTypeId = paymentTypeId;
+            PaymentStatusId = paymentStatusId;
+            SaleProducts = saleProducts;
         }
 
 
@@ -41,19 +47,30 @@ namespace WebApi.Ecommerce.Domain.Entities
 
 
         // Relationship
-        public Customer Customer { get; set; }
+        public Guid CustomerId { get; private set; }
 
-        public PaymentType PaymentType { get; set; }
+        public virtual Customer Customer { get; private set; }
 
-        public PaymentStatus PaymentStatus { get; set; }
+        public Guid PaymentTypeId { get; private set; }
 
-        public ICollection<SaleProduct> SaleProducts { get; set; }
+        public virtual PaymentType PaymentType { get; private set; }
+
+        public Guid PaymentStatusId { get; private set; }
+
+        public virtual PaymentStatus PaymentStatus { get; private set; }
+
+        public IEnumerable<SaleProduct> SaleProducts { get; private set; } = new List<SaleProduct>();
 
 
         // Modifier
         public void SetTransaction(string transaction)
         {
             this.Transaction = transaction;
+        }
+
+        public void SetPaymentStatusId(Guid paymentStatusId)
+        {
+            this.PaymentStatusId = paymentStatusId;
         }
     }
 }

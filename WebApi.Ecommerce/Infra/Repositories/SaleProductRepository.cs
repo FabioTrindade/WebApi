@@ -15,15 +15,16 @@ namespace WebApi.Ecommerce.Infra.Repositories
         {
         }
 
-        public async Task<List<SaleProductDTO>> GetWithById(Guid id)
+        public async Task<List<SaleProductDTO>> GetWithBySaleId(Guid id)
         {
             var sql = $@"
                             SELECT sl.productid
                                 , p.description 
                                 , sl.amount
                                 , sl.quantity
+                                , sl.sale 
                             FROM public.""SaleProducts"" sl
-                                INNER JOIN ""Products"" p ON(p.id = sl.productid);
+                                INNER JOIN ""Products"" p ON(p.id = sl.productid)
                             WHERE sl.saleid = @id
                         ";
 

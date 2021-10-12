@@ -26,7 +26,7 @@ namespace WebApi.Ecommerce.Infra.Repositories
                                     , ps.active
                                     , ps.description
                                 FROM public.""PaymentStatus"" ps
-                                WHERR ps.id = @id;
+                                WHERE ps.id = @id;
                             ";
 
             return await QueryFirstAsync<PaymentStatusDTO>(sql, new { id });

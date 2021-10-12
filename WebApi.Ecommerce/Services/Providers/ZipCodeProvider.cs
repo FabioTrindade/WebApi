@@ -32,7 +32,7 @@ namespace WebApi.Ecommerce.Services.Providers
             var result = await AddressWithZipCode(command.ZipCode);
             result.ZipCode.ValidateIfIsNull($"Cep {command.ZipCode} não encontrado.");
 
-            var address = new AddressDTO(result.ZipCode, result.Address, result.Complement, result.Neighborhood, result.City, result.State, result.Ddd);
+            var address = new AddressDTO(command.ZipCode, result.Address, result.Complement, result.Neighborhood, result.City, result.State, result.Ddd);
 
             return new GenericCommandResult(true, "", address);
         }

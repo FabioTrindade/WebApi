@@ -8,6 +8,6 @@ namespace WebApi.Ecommerce.Domain.Repositories
 {
     public interface ISaleProductRepository : IEntityRepository<SaleProduct>
     {
-        Task<List<SaleProductDTO>> GetWithById(Guid id);
+        Task<List<SaleProductDTO>> GetWithBySaleId(Guid id);
     }
 }

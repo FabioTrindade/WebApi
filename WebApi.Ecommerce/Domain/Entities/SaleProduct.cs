@@ -13,13 +13,11 @@ namespace WebApi.Ecommerce.Domain.Entities
         public SaleProduct(decimal amount
             , int quantity
             , decimal? sale
-            , Guid saleId
             , Guid productId)
         {
             Amount = amount;
             Quantity = quantity;
             Sale = sale;
-            SaleId = saleId;
             ProductId = productId;
         }
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,9 @@ namespace WebApi.Ecommerce
         {
             services.AddCors();
             services.AddControllers();
+
+            // Add route lower case
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
             // Document swagger
             services.AddSwaggerGen(c =>
