@@ -29,8 +29,8 @@ namespace WebApi.Ecommerce.Domain.Commands.Sale
         public void Validate()
         {
             AddNotifications(new Contract<Notification>().Requires()
-                    .IsNotNull(CustomerId, "CustomerId", "É necessário informar o cliente.")
-                    .IsNotNull(PaymentTypeId, "PaymentTypeId", "É necessário informar o tipo de pagamento.")
+                    .AreEquals(CustomerId, "00000000-0000-0000-0000-000000000000", "CustomerId", "É necessário informar o cliente.")
+                    .AreEquals(PaymentTypeId, "00000000-0000-0000-0000-000000000000", "PaymentTypeId", "É necessário informar o tipo de pagamento.")
                     .IsNotNull(Products, "Products", "É necessário informar o produto.")
                 );
         }
