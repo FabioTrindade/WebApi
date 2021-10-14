@@ -1,22 +1,19 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build-env
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /src
-COPY ["WebApi.Ecommerce/WebApi.Ecommerce.csproj", "WebApi.Ecommerce/"]
-RUN dotnet restore "WebApi.Ecommerce/WebApi.Ecommerce.csproj"
-COPY . .
-WORKDIR "/src/WebApi.Ecommerce"
-RUN dotnet build "WebApi.Ecommerce.csproj" -c Release -o /app/build
+#Exibir a versão do .NET
+RUN dotnet --version
 
-FROM build AS publish
-RUN dotnet publish "WebApi.Ecommerce.csproj" -c Release -o /app/publish
+# Copiar csproj e restaurar dependencias
+COPY *.csproj ./
+RUN dotnet restore
 
-FROM base AS final
+# Build da aplicacao
+COPY . ./
+RUN dotnet publish -c Release -o out
+
+# Build da imagem
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "WebApi.Ecommerce.dll"]

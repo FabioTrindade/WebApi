@@ -22,8 +22,11 @@ namespace WebApi.Ecommerce.Infra.Contexts
         {
             if (optionsBuilder.IsConfigured)
             {
+                var host = _configuration["DBHOST"] ?? "localhost";
+                var password = _configuration["DBPASSWORD"] ?? "p0stGr3s";
+
                 optionsBuilder
-                    .UseNpgsql(_configuration.GetConnectionString("WebApiConnection"), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
+                    .UseNpgsql(string.Format(_configuration.GetConnectionString("WebApiConnection"), host, password), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
                     .UseLowerCaseNamingConvention();
             }
         }

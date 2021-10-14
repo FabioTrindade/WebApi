@@ -30,6 +30,9 @@ namespace WebApi.Ecommerce
             // Add route lower case
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
+            var host = Configuration["DBHOST"] ?? "localhost";
+            var password = Configuration["DBPASSWORD"] ?? "p0stGr3s";
+
             // Document swagger
             services.AddSwaggerGen(c =>
             {
@@ -40,7 +43,7 @@ namespace WebApi.Ecommerce
             // Connection with database
             services.AddDbContext<WebApiDataContext>(options =>
                 options
-                    .UseNpgsql(Configuration.GetConnectionString("WebApiConnection"), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
+                    .UseNpgsql(string.Format(Configuration.GetConnectionString("WebApiConnection"), host, password), m => m.MigrationsHistoryTable("WebApiEcommerceMigrations"))
                     .UseLowerCaseNamingConvention()
             );
 
